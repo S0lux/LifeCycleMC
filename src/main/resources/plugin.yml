@@ -1,0 +1,4 @@
+name: LifeCycle
+version: '${version}'
+main: com.github.s0lux.lifecycle.LifeCycle
+api-version: '1.21'
