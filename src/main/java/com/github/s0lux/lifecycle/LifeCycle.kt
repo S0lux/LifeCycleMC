@@ -4,7 +4,7 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class LifeCycle : JavaPlugin() {
     override fun onEnable() {
-        logger.info("Starting up...")
+        saveDefaultConfig()
     }
 
     override fun onDisable() {

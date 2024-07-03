@@ -1,0 +1,9 @@
+lifecycle:
+  # How often the plugin updates players' ages in ticks
+  update-interval: 20
+  # Lower values mean less data loss if server crashed
+  backup-interval: 3000
+  # How long it takes for a player to age by 1 year in ticks
+  age-interval: 6000
+  # Default lifespan (traits will add/subtract this number)
+  lifespan: 50
