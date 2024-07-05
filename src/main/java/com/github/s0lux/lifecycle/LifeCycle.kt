@@ -46,6 +46,6 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
     }
 
     override suspend fun onDisableAsync() {
-        // Plugin shutdown logic
+        lifeCycleDataManager.savePlayers(lifeCycleAgeManager.players)
     }
 }
