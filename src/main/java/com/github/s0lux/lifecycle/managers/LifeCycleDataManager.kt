@@ -6,11 +6,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.insertIgnore
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.upsert
 import org.koin.core.component.KoinComponent
 import java.util.*
 import java.util.logging.Logger
@@ -22,6 +19,14 @@ class LifeCycleDataManager(
 ) : KoinComponent {
     private val pluginFolder: String = javaPlugin.dataFolder.absolutePath
     private var database: Database = Database.connect("jdbc:sqlite:${pluginFolder}/database.db", "org.sqlite.JDBC")
+
+    suspend fun setupDatabase() {
+        withContext(Dispatchers.IO) {
+            transaction(database) {
+                SchemaUtils.createMissingTablesAndColumns(LifeCyclePlayersTable)
+            }
+        }
+    }
 
     suspend fun savePlayers(players: List<LifeCyclePlayer>) {
         withContext(Dispatchers.IO) {

@@ -12,10 +12,12 @@ import org.koin.core.component.KoinComponent
 import java.util.logging.Logger
 
 class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: JavaPlugin): KoinComponent {
-    private var players: MutableList<LifeCyclePlayer> = mutableListOf()
     private var ageCycleJob: Job? = null
     private val updateInterval: Int = javaPlugin.config.getInt("lifecycle.update-interval")
     private val ageInterval: Int = javaPlugin.config.getInt("lifecycle.age-interval")
+
+    var players: MutableList<LifeCyclePlayer> = mutableListOf()
+        private set
 
     fun beginAgeCycle() {
         if (ageCycleJob?.isActive == true) {
@@ -24,8 +26,10 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         }
 
         ageCycleJob = javaPlugin.launch {
+            logger.info("Starting age cycle")
             while (isActive) {
                 players.filter { it.isAgingEnabled }.forEach { player ->
+                    logger.info("Aging player ${player.bukkitPlayer.name} (${player.currentAge}, ${player.currentTicks})")
                     if (player.currentTicks + updateInterval >= ageInterval) {
                         player.currentAge++
                         player.currentTicks = 0
@@ -41,5 +45,18 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
                 delay(updateInterval.ticks)
             }
         }
+    }
+
+    fun registerPlayer(player: LifeCyclePlayer) {
+        if (players.contains(player)) {
+            logger.warning("Attempted to register an already registered player.")
+            return;
+        }
+
+        players.add(player)
+    }
+
+    fun unregisterPlayer(uuid: String) {
+        players.removeIf { it.bukkitPlayer.uniqueId.toString() == uuid }
     }
 }
