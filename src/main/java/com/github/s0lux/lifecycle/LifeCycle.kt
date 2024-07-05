@@ -25,7 +25,7 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
                     single<JavaPlugin> { this@LifeCycle }
                     single<LifeCycleTraitManager> { LifeCycleTraitManager(get(), get()) }
                     single<LifeCycleAgeManager> { LifeCycleAgeManager(get(), get()) }
-                    single<LifeCycleDataManager> { LifeCycleDataManager(get(), get(), get()) }
+                    single<LifeCycleDataManager> { LifeCycleDataManager(get(), get(), get(), get()) }
                 })
         }
 
@@ -34,6 +34,7 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
 
         // Setup plugin
         lifeCycleDataManager.setupDatabase()
+        lifeCycleDataManager.startBackupJob()
         lifeCycleAgeManager.beginAgeCycle()
 
         // Register listeners

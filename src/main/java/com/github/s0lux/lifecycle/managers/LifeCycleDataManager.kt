@@ -2,8 +2,9 @@ package com.github.s0lux.lifecycle.managers
 
 import com.github.s0lux.lifecycle.schemas.LifeCyclePlayersTable
 import com.github.s0lux.lifecycle.utils.wrappers.LifeCyclePlayer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.github.shynixn.mccoroutine.bukkit.launch
+import com.github.shynixn.mccoroutine.bukkit.ticks
+import kotlinx.coroutines.*
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.exposed.sql.*
@@ -15,15 +16,34 @@ import java.util.logging.Logger
 class LifeCycleDataManager(
     private val logger: Logger,
     private val javaPlugin: JavaPlugin,
-    private val lifeCycleTraitManager: LifeCycleTraitManager
+    private val lifeCycleTraitManager: LifeCycleTraitManager,
+    private val lifeCycleAgeManager: LifeCycleAgeManager
 ) : KoinComponent {
     private val pluginFolder: String = javaPlugin.dataFolder.absolutePath
     private var database: Database = Database.connect("jdbc:sqlite:${pluginFolder}/database.db", "org.sqlite.JDBC")
+    private var backupJob: Job? = null
+    private val backupInterval: Int = javaPlugin.config.getInt("lifecycle.backup-interval")
 
     suspend fun setupDatabase() {
         withContext(Dispatchers.IO) {
             transaction(database) {
                 SchemaUtils.createMissingTablesAndColumns(LifeCyclePlayersTable)
+            }
+        }
+    }
+
+    suspend fun startBackupJob() {
+        if (backupJob?.isActive == true) {
+            logger.info("Backup job is already running")
+            return
+        }
+
+        backupJob = javaPlugin.launch(Dispatchers.IO) {
+            delay(backupInterval.ticks)
+
+            while (isActive) {
+                savePlayers(lifeCycleAgeManager.players)
+                delay(backupInterval.ticks)
             }
         }
     }
