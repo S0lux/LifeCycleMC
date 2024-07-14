@@ -23,6 +23,7 @@ class LifeCycleDataManager(
     private var database: Database = Database.connect("jdbc:sqlite:${pluginFolder}/database.db", "org.sqlite.JDBC")
     private var backupJob: Job? = null
     private val backupInterval: Int = javaPlugin.config.getInt("lifecycle.backup-interval")
+    private val lifespan: Int = javaPlugin.config.getInt("lifecycle.lifespan")
 
     suspend fun setupDatabase() {
         withContext(Dispatchers.IO) {
@@ -85,7 +86,8 @@ class LifeCycleDataManager(
                         bukkitPlayer = Bukkit.getPlayer(UUID.fromString(result[LifeCyclePlayersTable.uuid]))!!,
                         currentAge = result[LifeCyclePlayersTable.currentAge],
                         currentTicks = result[LifeCyclePlayersTable.currentTicks],
-                        traits = playerTraits ?: emptyList()
+                        traits = playerTraits ?: emptyList(),
+                        lifespan = lifespan
                     )
                 } ?: throw IllegalStateException("Player with uuid $uuid not found in database")
             }

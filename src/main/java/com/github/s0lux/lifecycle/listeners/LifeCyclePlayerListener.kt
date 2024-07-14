@@ -1,12 +1,17 @@
 package com.github.s0lux.lifecycle.listeners
 
+import com.github.s0lux.lifecycle.events.AgingEvent
 import com.github.s0lux.lifecycle.managers.LifeCycleAgeManager
 import com.github.s0lux.lifecycle.managers.LifeCycleDataManager
 import com.github.s0lux.lifecycle.utils.wrappers.LifeCyclePlayer
+import com.github.shynixn.mccoroutine.bukkit.ticks
+import kotlinx.coroutines.delay
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.player.PlayerRespawnEvent
 
 class LifeCyclePlayerListener(
     private val lifeCycleDataManager: LifeCycleDataManager,
@@ -19,6 +24,7 @@ class LifeCyclePlayerListener(
         val lifeCyclePlayer = lifeCycleDataManager.getPlayer(bukkitPlayer.uniqueId.toString())
 
         lifeCycleAgeManager.registerPlayer(lifeCyclePlayer)
+        lifeCycleAgeManager.applyAge(lifeCyclePlayer)
     }
 
     @EventHandler
@@ -26,10 +32,40 @@ class LifeCyclePlayerListener(
         val bukkitPlayer = event.player
         val lifeCyclePlayer = lifeCycleAgeManager.players.find { it.bukkitPlayer == bukkitPlayer }
 
-        lifeCycleAgeManager.unregisterPlayer(bukkitPlayer.uniqueId.toString())
-
         if (lifeCyclePlayer is LifeCyclePlayer) {
+            lifeCycleAgeManager.unregisterPlayer(bukkitPlayer.uniqueId.toString())
+            lifeCycleAgeManager.removeAgeEffects(lifeCyclePlayer)
             lifeCycleDataManager.savePlayers(listOf(lifeCyclePlayer))
         }
+    }
+
+    @EventHandler
+    fun onPlayerDeath(event: PlayerDeathEvent) {
+        val bukkitPlayer = event.player
+        val lifeCyclePlayer = lifeCycleAgeManager.players.find { it.bukkitPlayer == bukkitPlayer }
+
+        if (lifeCyclePlayer is LifeCyclePlayer) {
+            lifeCycleAgeManager.removeAgeEffects(lifeCyclePlayer)
+            lifeCycleAgeManager.resetAge(lifeCyclePlayer)
+        }
+    }
+
+    @EventHandler
+    suspend fun onPlayerRespawn(event: PlayerRespawnEvent) {
+        delay(1.ticks)
+
+        val bukkitPlayer = event.player
+        val lifeCyclePlayer = lifeCycleAgeManager.players.find { it.bukkitPlayer == bukkitPlayer }
+
+        if (lifeCyclePlayer is LifeCyclePlayer) {
+            lifeCycleAgeManager.applyAge(lifeCyclePlayer)
+        }
+    }
+
+    @EventHandler
+    fun onPlayerAge(event: AgingEvent) {
+        val lifeCyclePlayer = event.player
+
+        lifeCycleAgeManager.applyAge(lifeCyclePlayer)
     }
 }
