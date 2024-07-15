@@ -1,0 +1,19 @@
+age-stages:
+  - name: Infancy
+    age: 0
+    effects:
+      - type: POTION
+        effect: SLOWNESS
+        amplifier: 0
+      - type: ATTRIBUTE
+        attribute: GENERIC_MAX_HEALTH
+        value: -14.0
+  - name: Childhood
+    age: 5
+    effects:
+      - type: POTION
+        effect: SPEED
+        amplifier: 0
+      - type: ATTRIBUTE
+        attribute: GENERIC_MAX_HEALTH
+        value: -7.0

@@ -31,6 +31,7 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
 
         // Setup config
         saveDefaultConfig()
+        saveResource("age_stages.yml", false)
 
         // Setup plugin
         lifeCycleDataManager.setupDatabase()
@@ -48,5 +49,6 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
 
     override suspend fun onDisableAsync() {
         lifeCycleDataManager.savePlayers(lifeCycleAgeManager.players)
+        lifeCycleAgeManager.players.forEach { lifeCycleAgeManager.removeAgeEffects(it) }
     }
 }

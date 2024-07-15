@@ -1,6 +1,9 @@
 package com.github.s0lux.lifecycle.managers
 
 import com.github.s0lux.lifecycle.events.AgingEvent
+import com.github.s0lux.lifecycle.utils.helpers.loadAgeStagesFromYaml
+import com.github.s0lux.lifecycle.utils.wrappers.AgeStageEffect
+import com.github.s0lux.lifecycle.utils.wrappers.AgeStages
 import com.github.s0lux.lifecycle.utils.wrappers.LifeCyclePlayer
 import com.github.shynixn.mccoroutine.bukkit.launch
 import com.github.shynixn.mccoroutine.bukkit.ticks
@@ -8,11 +11,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import org.bukkit.Bukkit
-import org.bukkit.attribute.Attribute
 import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.potion.PotionEffect
 import org.koin.core.component.KoinComponent
+import java.io.File
 import java.util.logging.Logger
 
 class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: JavaPlugin) : KoinComponent {
@@ -23,8 +24,11 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
     var players: MutableList<LifeCyclePlayer> = mutableListOf()
         private set
 
-    var activeAgeEffects: MutableMap<String, MutableList<Any>> = mutableMapOf()
+    var activeAgeEffects: MutableMap<String, MutableList<AgeStageEffect>> = mutableMapOf()
         private set
+
+    val ageStagesFile = File(javaPlugin.dataFolder, "age_stages.yml")
+    val ageStages: AgeStages = loadAgeStagesFromYaml(ageStagesFile, logger)
 
     fun beginAgeCycle() {
         if (ageCycleJob?.isActive == true) {
@@ -66,39 +70,35 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         players.removeIf { it.bukkitPlayer.uniqueId.toString() == uuid }
     }
 
-    private fun addAgeEffect(player: LifeCyclePlayer, effect: Any) {
+    private fun addAgeEffect(player: LifeCyclePlayer, ageStageEffect: AgeStageEffect) {
         val uuid = player.bukkitPlayer.uniqueId.toString()
 
-        activeAgeEffects.getOrPut(uuid) { mutableListOf() }.add(effect)
+        activeAgeEffects.getOrPut(uuid) { mutableListOf() }.add(ageStageEffect)
 
-        when (effect) {
-            is PotionEffect -> player.bukkitPlayer.addPotionEffect(effect)
-            is Pair<*, *> -> {
-                if (effect.first is Attribute && effect.second is Double) {
-                    player.bukkitPlayer.getAttribute(effect.first as Attribute)?.baseValue =
-                        player.bukkitPlayer.getAttribute(effect.first as Attribute)?.baseValue?.plus(
-                            effect.second as Double
-                        )!!
-                }
+        when (ageStageEffect) {
+            is AgeStageEffect.EffectModifier -> player.bukkitPlayer.addPotionEffect(ageStageEffect.effect)
+            is AgeStageEffect.AttributeModifier -> {
+                player.bukkitPlayer.getAttribute(ageStageEffect.attribute)?.baseValue =
+                    player.bukkitPlayer.getAttribute(ageStageEffect.attribute)?.baseValue?.plus(
+                        ageStageEffect.value
+                    )!!
             }
         }
     }
 
     fun removeAgeEffects(player: LifeCyclePlayer) {
         val uuid = player.bukkitPlayer.uniqueId.toString()
-        val effects = activeAgeEffects.get(uuid)
+        val effects = activeAgeEffects[uuid]
 
         if (!effects.isNullOrEmpty()) {
             effects.forEach { effect ->
                 when (effect) {
-                    is PotionEffect -> player.bukkitPlayer.removePotionEffect(effect.type)
-                    is Pair<*, *> -> {
-                        if (effect.first is Attribute && effect.second is Double) {
-                            player.bukkitPlayer.getAttribute(effect.first as Attribute)?.baseValue =
-                                player.bukkitPlayer.getAttribute(effect.first as Attribute)?.baseValue?.minus(
-                                    effect.second as Double
-                                )!!
-                        }
+                    is AgeStageEffect.EffectModifier -> player.bukkitPlayer.removePotionEffect(effect.effect.type)
+                    is AgeStageEffect.AttributeModifier -> {
+                        player.bukkitPlayer.getAttribute(effect.attribute)?.baseValue =
+                            player.bukkitPlayer.getAttribute(effect.attribute)?.baseValue?.minus(
+                                effect.value
+                            )!!
                     }
                 }
             }
@@ -135,13 +135,14 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
             }
             return
         } else {
-            removeAgeEffects(player)
+            val stage = ageStages.getStageForAge(player.currentAge).stage
 
-            player.currentStage.potionEffects.forEach { effect ->
-                addAgeEffect(player, effect)
-            }
-            player.currentStage.attributeModifiers.forEach { effect ->
-                addAgeEffect(player, effect)
+            removeAgeEffects(player)
+            stage.effects.forEach { effect ->
+                when (effect) {
+                    is AgeStageEffect.EffectModifier -> addAgeEffect(player, effect)
+                    is AgeStageEffect.AttributeModifier -> addAgeEffect(player, effect)
+                }
             }
         }
     }
