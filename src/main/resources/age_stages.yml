@@ -4,16 +4,73 @@ age-stages:
     effects:
       - type: POTION
         effect: SLOWNESS
+        amplifier: 1
+      - type: POTION
+        effect: WEAKNESS
+        amplifier: 1
+      - type: POTION
+        effect: MINING_FATIGUE
         amplifier: 0
       - type: ATTRIBUTE
         attribute: GENERIC_MAX_HEALTH
         value: -14.0
-  - name: Childhood
-    age: 5
+  - name: Early Childhood
+    age: 2
     effects:
       - type: POTION
-        effect: SPEED
+        effect: SLOWNESS
+        amplifier: 1
+      - type: POTION
+        effect: WEAKNESS
+        amplifier: 0
+      - type: POTION
+        effect: MINING_FATIGUE
         amplifier: 0
       - type: ATTRIBUTE
         attribute: GENERIC_MAX_HEALTH
-        value: -7.0
+        value: -10.0
+  - name: Middle Childhood
+    age: 6
+    effects:
+      - type: POTION
+        effect: SLOWNESS
+        amplifier: 0
+      - type: POTION
+        effect: WEAKNESS
+        amplifier: 0
+      - type: POTION
+        effect: MINING_FATIGUE
+        amplifier: 0
+      - type: ATTRIBUTE
+        attribute: GENERIC_MAX_HEALTH
+        value: -10.0
+  - name: Adolescence
+    age: 12
+    effects:
+      - type: POTION
+        effect: SLOWNESS
+        amplifier: 0
+      - type: POTION
+        effect: WEAKNESS
+        amplifier: 0
+      - type: ATTRIBUTE
+        attribute: GENERIC_MAX_HEALTH
+        value: -6.0
+  - name: Young Adulthood
+    age: 18
+    effects:
+      - type: ATTRIBUTE
+        attribute: GENERIC_MAX_HEALTH
+        value: -4.0
+  - name: Adulthood
+    age: 35
+    effects:
+  - name: Old Age
+    age: 50
+    effects:
+      - type: POTION
+        effect: SLOWNESS
+        amplifier: 0
+      - type: ATTRIBUTE
+        attribute: GENERIC_MAX_HEALTH
+        value: -6.0
