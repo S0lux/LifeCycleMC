@@ -1,8 +1,8 @@
 package com.github.s0lux.lifecycle.utils.wrappers
 
-import AgeStage
+import com.github.s0lux.lifecycle.utils.helpers.StageConfig
 
-class AgeStages(val stages: List<AgeStage>) {
+class AgeStages(val stages: List<StageConfig>) {
     init {
         validateStages()
     }
@@ -23,9 +23,9 @@ class AgeStages(val stages: List<AgeStage>) {
     }
 
     fun getStageForAge(age: Int): AgeStageResult {
-        val stage = stages.filter { it.age <= age }.maxBy { it.age }
+        val stage = stages.filter { it.age!! <= age }.maxBy { it.age!! }
         return AgeStageResult(stage, stage.age == age)
     }
 }
 
-data class AgeStageResult(val stage: AgeStage, val isNewStage: Boolean)
+data class AgeStageResult(val stage: StageConfig, val isNewStage: Boolean)

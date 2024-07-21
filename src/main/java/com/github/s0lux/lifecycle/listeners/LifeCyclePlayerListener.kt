@@ -6,6 +6,7 @@ import com.github.s0lux.lifecycle.managers.LifeCycleDataManager
 import com.github.s0lux.lifecycle.utils.wrappers.LifeCyclePlayer
 import com.github.shynixn.mccoroutine.bukkit.ticks
 import kotlinx.coroutines.delay
+import org.bukkit.attribute.Attribute
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
