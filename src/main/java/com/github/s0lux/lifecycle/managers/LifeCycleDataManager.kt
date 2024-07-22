@@ -79,7 +79,7 @@ class LifeCycleDataManager(
                 }.singleOrNull()?.let { result ->
 
                     val playerTraits = result[LifeCyclePlayersTable.traits]?.split(", ")?.mapNotNull { traitName ->
-                        lifeCycleTraitManager.getTrait(traitName)
+                        lifeCycleTraitManager.getTraitFromName(traitName)
                     }
 
                     LifeCyclePlayer(
