@@ -23,14 +23,12 @@ fun loadAgeStagesFromYaml(file: File, logger: Logger): AgeStages {
             (unparsedStage["effects"] as ArrayList<*>).forEach { it ->
                 val raw = it as LinkedHashMap<*, *>
 
-                if (raw["type"] == "POTION") {
-                    stageEffects.add(StageEffect.Potion(
+                when (raw["type"]) {
+                    "POTION" -> stageEffects.add(StageEffect.Potion(
                         effect = raw["effect"]?.toString(),
                         amplifier = raw["amplifier"]?.toString()?.toIntOrNull()))
-                }
 
-                if (raw["type"] == "ATTRIBUTE") {
-                    stageEffects.add(StageEffect.Attribute(
+                    "ATTRIBUTE" -> stageEffects.add(StageEffect.Attribute(
                         attribute = raw["attribute"]?.toString().orEmpty(),
                         value = raw["value"]?.toString()?.toDoubleOrNull()))
                 }

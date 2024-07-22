@@ -6,7 +6,6 @@ import com.github.s0lux.lifecycle.managers.LifeCycleDataManager
 import com.github.s0lux.lifecycle.utils.wrappers.LifeCyclePlayer
 import com.github.shynixn.mccoroutine.bukkit.ticks
 import kotlinx.coroutines.delay
-import org.bukkit.attribute.Attribute
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
@@ -35,7 +34,7 @@ class LifeCyclePlayerListener(
 
         if (lifeCyclePlayer is LifeCyclePlayer) {
             lifeCycleAgeManager.unregisterPlayer(bukkitPlayer.uniqueId.toString())
-            lifeCycleAgeManager.removeAgeEffects(lifeCyclePlayer)
+            lifeCycleAgeManager.clearStageEffects(lifeCyclePlayer)
             lifeCycleDataManager.savePlayers(listOf(lifeCyclePlayer))
         }
     }
@@ -46,7 +45,7 @@ class LifeCyclePlayerListener(
         val lifeCyclePlayer = lifeCycleAgeManager.players.find { it.bukkitPlayer == bukkitPlayer }
 
         if (lifeCyclePlayer is LifeCyclePlayer) {
-            lifeCycleAgeManager.removeAgeEffects(lifeCyclePlayer)
+            lifeCycleAgeManager.clearStageEffects(lifeCyclePlayer)
             lifeCycleAgeManager.resetAge(lifeCyclePlayer)
         }
     }

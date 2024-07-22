@@ -11,7 +11,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import org.bukkit.attribute.Attribute
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinComponent
 import java.io.File
@@ -70,7 +69,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         players.removeIf { it.bukkitPlayer.uniqueId.toString() == uuid }
     }
 
-    private fun addAgeEffect(player: LifeCyclePlayer, ageStageEffect: StageEffect) {
+    private fun addStageEffect(player: LifeCyclePlayer, ageStageEffect: StageEffect) {
         val uuid = player.bukkitPlayer.uniqueId.toString()
 
         activeAgeEffects.getOrPut(uuid) { mutableListOf() }.add(ageStageEffect)
@@ -86,7 +85,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         }
     }
 
-    fun removeAgeEffects(player: LifeCyclePlayer) {
+    fun clearStageEffects(player: LifeCyclePlayer) {
         val uuid = player.bukkitPlayer.uniqueId.toString()
         val effects = activeAgeEffects[uuid]
 
@@ -115,29 +114,33 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
     fun applyAge(player: LifeCyclePlayer) {
         if (player.currentAge > player.lifespan) {
             if (player.deathJob == null) {
-                player.deathJob = javaPlugin.launch {
-                    val bukkitPlayer = player.bukkitPlayer
-
-                    while (isActive) {
-                        if (bukkitPlayer.health <= 2) {
-                            bukkitPlayer.health = 0.0
-                        } else {
-                            bukkitPlayer.health -= 2
-                        }
-
-                        if (bukkitPlayer.isDead || bukkitPlayer.isConnected.not()) {
-                            cancel()
-                        }
-
-                        delay(12.ticks)
-                    }
-                }
+                startDyingProcess(player)
             }
             return
         } else {
             val stage = ageStages.getStageForAge(player.currentAge).stage
-            removeAgeEffects(player)
-            stage.effects.forEach { effect -> addAgeEffect(player, effect) }
+            clearStageEffects(player)
+            stage.effects.forEach { effect -> addStageEffect(player, effect) }
+        }
+    }
+
+    private fun startDyingProcess(player: LifeCyclePlayer) {
+        player.deathJob = javaPlugin.launch {
+            val bukkitPlayer = player.bukkitPlayer
+
+            while (isActive) {
+                if (bukkitPlayer.health <= 2) {
+                    bukkitPlayer.health = 0.0
+                } else {
+                    bukkitPlayer.health -= 2
+                }
+
+                if (bukkitPlayer.isDead || bukkitPlayer.isConnected.not()) {
+                    cancel()
+                }
+
+                delay(12.ticks)
+            }
         }
     }
 }
