@@ -34,7 +34,7 @@ class LifeCyclePlayerListener(
 
         if (lifeCyclePlayer is LifeCyclePlayer) {
             lifeCycleAgeManager.unenrollPlayerFromAgingCycle(bukkitPlayer.uniqueId.toString())
-            lifeCycleAgeManager.clearStageEffects(lifeCyclePlayer)
+            lifeCycleAgeManager.clearPlayerStageEffects(lifeCyclePlayer)
             lifeCycleDataManager.savePlayers(listOf(lifeCyclePlayer))
         }
     }
@@ -45,7 +45,7 @@ class LifeCyclePlayerListener(
         val lifeCyclePlayer = lifeCycleAgeManager.players.find { it.bukkitPlayer == bukkitPlayer }
 
         if (lifeCyclePlayer is LifeCyclePlayer) {
-            lifeCycleAgeManager.clearStageEffects(lifeCyclePlayer)
+            lifeCycleAgeManager.clearPlayerStageEffects(lifeCyclePlayer)
             lifeCycleAgeManager.resetPlayerAge(lifeCyclePlayer)
         }
     }

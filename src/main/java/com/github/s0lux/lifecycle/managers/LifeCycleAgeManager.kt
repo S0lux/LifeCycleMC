@@ -85,7 +85,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         }
     }
 
-    fun clearStageEffects(player: LifeCyclePlayer) {
+    fun clearPlayerStageEffects(player: LifeCyclePlayer) {
         val uuid = player.bukkitPlayer.uniqueId.toString()
         val effects = activeAgeEffects[uuid]
 
@@ -119,7 +119,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
             return
         } else {
             val stage = ageStages.getStageForAge(player.currentAge).stage
-            clearStageEffects(player)
+            clearPlayerStageEffects(player)
             stage.effects.forEach { effect -> addStageEffect(player, effect) }
         }
     }
