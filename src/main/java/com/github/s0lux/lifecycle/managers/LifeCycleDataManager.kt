@@ -80,13 +80,13 @@ class LifeCycleDataManager(
 
                     val playerTraits = result[LifeCyclePlayersTable.traits]?.split(", ")?.mapNotNull { traitName ->
                         lifeCycleTraitManager.getTraitFromName(traitName)
-                    }
+                    }?.toMutableList()
 
                     LifeCyclePlayer(
                         bukkitPlayer = Bukkit.getPlayer(UUID.fromString(result[LifeCyclePlayersTable.uuid]))!!,
                         currentAge = result[LifeCyclePlayersTable.currentAge],
                         currentTicks = result[LifeCyclePlayersTable.currentTicks],
-                        traits = playerTraits ?: emptyList(),
+                        traits = playerTraits ?: mutableListOf(),
                         lifespan = lifespan
                     )
                 } ?: throw IllegalStateException("Player with uuid $uuid not found in database")

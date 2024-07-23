@@ -8,7 +8,7 @@ import org.bukkit.entity.Player
 class LifeCyclePlayer(
     var currentAge: Int,
     var currentTicks: Int,
-    var traits: List<Trait>,
+    var traits: MutableList<Trait>,
     val bukkitPlayer: Player,
     var lifespan: Int,
     var deathJob: Job? = null

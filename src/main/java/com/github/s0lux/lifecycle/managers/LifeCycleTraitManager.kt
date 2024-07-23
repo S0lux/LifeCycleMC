@@ -2,6 +2,7 @@ package com.github.s0lux.lifecycle.managers
 
 import com.github.s0lux.lifecycle.traits.ThickSkin
 import com.github.s0lux.lifecycle.utils.interfaces.Trait
+import com.github.s0lux.lifecycle.utils.wrappers.LifeCyclePlayer
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinComponent
 import java.util.logging.Logger
@@ -21,7 +22,7 @@ class LifeCycleTraitManager(private val logger: Logger, private val javaPlugin: 
         return null
     }
 
-    fun getRandomTrait(): Trait? {
+    private fun getRandomTrait(): Trait? {
         val totalWeight = traits.sumOf { it.rarity.weight }
         if (totalWeight <= 0) return null
 
@@ -36,5 +37,16 @@ class LifeCycleTraitManager(private val logger: Logger, private val javaPlugin: 
         }
 
         return null
+    }
+
+    fun addRandomTraitToPlayer(player: LifeCyclePlayer) {
+        val trait: Trait? = getRandomTrait()
+
+        if (trait != null) {
+            player.traits.add(trait)
+            return
+        }
+
+        logger.warning("Unable to generate a suitable trait for player: ${player.bukkitPlayer.name}")
     }
 }
