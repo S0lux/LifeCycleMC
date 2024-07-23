@@ -30,7 +30,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
     val ageStagesFile = File(javaPlugin.dataFolder, "age_stages.yml")
     val ageStages: AgeStages = loadAgeStagesFromYaml(ageStagesFile, logger)
 
-    fun beginAgeCycle() {
+    fun initializeAgingCycle() {
         if (ageCycleJob?.isActive == true) {
             logger.warning("Attempted to begin a new age cycle while there is already an active one.")
             return;
@@ -57,7 +57,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         }
     }
 
-    fun registerPlayer(player: LifeCyclePlayer) {
+    fun enrollPlayerToAgingCycle(player: LifeCyclePlayer) {
         if (players.contains(player)) {
             logger.warning("Attempted to register an already registered player.")
             return;
@@ -65,7 +65,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         players.add(player)
     }
 
-    fun unregisterPlayer(uuid: String) {
+    fun unenrollPlayerFromAgingCycle(uuid: String) {
         players.removeIf { it.bukkitPlayer.uniqueId.toString() == uuid }
     }
 
@@ -106,15 +106,15 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         activeAgeEffects.remove(uuid)
     }
 
-    fun resetAge(player: LifeCyclePlayer) {
+    fun resetPlayerAge(player: LifeCyclePlayer) {
         player.currentAge = 0
         player.currentTicks = 0
     }
 
-    fun applyAge(player: LifeCyclePlayer) {
+    fun updatePlayerStageEffects(player: LifeCyclePlayer) {
         if (player.currentAge > player.lifespan) {
             if (player.deathJob == null) {
-                startDyingProcess(player)
+                initiateEndOfLifeProcess(player)
             }
             return
         } else {
@@ -124,7 +124,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         }
     }
 
-    private fun startDyingProcess(player: LifeCyclePlayer) {
+    private fun initiateEndOfLifeProcess(player: LifeCyclePlayer) {
         player.deathJob = javaPlugin.launch {
             val bukkitPlayer = player.bukkitPlayer
 

@@ -36,7 +36,7 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
         // Setup plugin
         lifeCycleDataManager.setupDatabase()
         lifeCycleDataManager.startBackupJob()
-        lifeCycleAgeManager.beginAgeCycle()
+        lifeCycleAgeManager.initializeAgingCycle()
 
         // Register listeners
         server.pluginManager.registerSuspendingEvents(
