@@ -15,6 +15,7 @@ fun loadAgeStagesFromYaml(file: File, logger: Logger): AgeStages {
         return AgeStages(emptyList())
     }
 
+    var currentTraitSlot = 0
     val stageConfigs: List<StageConfig> = stagesList.mapNotNull { unparsedStage ->
         if (unparsedStage !is LinkedHashMap<*, *>) return@mapNotNull null
         val stageEffects: MutableList<StageEffect> = mutableListOf()
@@ -23,7 +24,7 @@ fun loadAgeStagesFromYaml(file: File, logger: Logger): AgeStages {
             (unparsedStage["effects"] as ArrayList<*>).forEach { it ->
                 val raw = it as LinkedHashMap<*, *>
 
-                when (raw["type"]) {
+                when (raw["type"].toString().uppercase()) {
                     "POTION" -> stageEffects.add(StageEffect.Potion(
                         effect = raw["effect"]?.toString(),
                         amplifier = raw["amplifier"]?.toString()?.toIntOrNull()))
@@ -38,6 +39,7 @@ fun loadAgeStagesFromYaml(file: File, logger: Logger): AgeStages {
         StageConfig(
             name = unparsedStage["name"].toString(),
             age = unparsedStage["age"]?.toString()?.toIntOrNull(),
+            traitSlot = if (unparsedStage["earn_trait"]?.toString()?.uppercase() == "TRUE") currentTraitSlot++ else null,
             effects = stageEffects
         )
     }
@@ -48,5 +50,6 @@ fun loadAgeStagesFromYaml(file: File, logger: Logger): AgeStages {
 data class StageConfig (
     val name: String,
     val age: Int? = 0,
+    val traitSlot: Int? = -1,
     val effects: List<StageEffect>
 )

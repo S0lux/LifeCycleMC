@@ -1,6 +1,7 @@
 age-stages:
   - name: Infancy
     age: 0
+    earn_trait: FALSE
     effects:
       - type: POTION
         effect: SLOWNESS
@@ -17,6 +18,7 @@ age-stages:
 
   - name: Early Childhood
     age: 2
+    earn_trait: TRUE
     effects:
       - type: POTION
         effect: SLOWNESS
@@ -33,6 +35,7 @@ age-stages:
 
   - name: Middle Childhood
     age: 6
+    earn_trait: FALSE
     effects:
       - type: POTION
         effect: SLOWNESS
@@ -49,6 +52,7 @@ age-stages:
 
   - name: Adolescence
     age: 12
+    earn_trait: TRUE
     effects:
       - type: POTION
         effect: SLOWNESS
@@ -62,16 +66,20 @@ age-stages:
 
   - name: Young Adulthood
     age: 18
+    earn_trait: FALSE
     effects:
       - type: ATTRIBUTE
         attribute: GENERIC_MAX_HEALTH
         value: -4.0
+
   - name: Adulthood
     age: 35
+    earn_trait: TRUE
     effects:
 
   - name: Old Age
     age: 50
+    earn_trait: FALSE
     effects:
       - type: POTION
         effect: SLOWNESS

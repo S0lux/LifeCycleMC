@@ -45,7 +45,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
                         player.currentAge++
                         player.currentTicks = 0
 
-                        val agingEvent = AgingEvent(player)
+                        val agingEvent = AgingEvent(player, ageStages.getStageForAge(player.currentAge))
                         agingEvent.callEvent()
                     } else {
                         player.currentTicks += updateInterval
