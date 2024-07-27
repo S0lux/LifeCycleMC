@@ -22,14 +22,15 @@ class LifeCycleTraitManager(private val logger: Logger, private val javaPlugin: 
         return null
     }
 
-    private fun getRandomTrait(): Trait? {
-        val totalWeight = traits.sumOf { it.rarity.weight }
+    private fun getRandomTrait(blacklist: List<String>? = null): Trait? {
+        val obtainableTraits = traits.filter { blacklist?.contains(it.name)?.not() ?: true }
+        val totalWeight = obtainableTraits.sumOf { it.rarity.weight }
         if (totalWeight <= 0) return null
 
         val randomNumber = (0 until totalWeight).random()
         var accumulatedWeight = 0
 
-        for (trait in traits) {
+        for (trait in obtainableTraits) {
             accumulatedWeight += trait.rarity.weight
             if (randomNumber < accumulatedWeight) {
                 return trait
@@ -40,7 +41,7 @@ class LifeCycleTraitManager(private val logger: Logger, private val javaPlugin: 
     }
 
     fun addRandomTraitToPlayer(player: LifeCyclePlayer) {
-        val trait: Trait? = getRandomTrait()
+        val trait: Trait? = getRandomTrait(player.traits.map { it.name })
 
         if (trait != null) {
             player.traits.add(trait)
