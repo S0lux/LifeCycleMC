@@ -40,14 +40,19 @@ class LifeCycleTraitManager(private val logger: Logger, private val javaPlugin: 
         return null
     }
 
-    fun addRandomTraitToPlayer(player: LifeCyclePlayer) {
+    fun addRandomTraitToPlayer(player: LifeCyclePlayer, slot: Int): Trait? {
         val trait: Trait? = getRandomTrait(player.traits.map { it.name })
 
         if (trait != null) {
-            player.traits.add(trait)
-            return
+            // This is to prevent setAge command from adding more trait than required
+            if (player.traits.count() == slot) {
+                player.traits.add(trait)
+                return trait
+            }
+            return player.traits.last()
         }
 
         logger.warning("Unable to generate a suitable trait for player: ${player.bukkitPlayer.name}")
+        return null
     }
 }

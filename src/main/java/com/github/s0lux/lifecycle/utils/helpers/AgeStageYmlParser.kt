@@ -39,7 +39,7 @@ fun loadAgeStagesFromYaml(file: File, logger: Logger): AgeStages {
         StageConfig(
             name = unparsedStage["name"].toString(),
             age = unparsedStage["age"]?.toString()?.toIntOrNull(),
-            traitSlot = if (unparsedStage["earn_trait"]?.toString()?.uppercase() == "TRUE") currentTraitSlot++ else null,
+            traitSlot = if (unparsedStage["earn_trait"]?.toString()?.uppercase() == "TRUE") currentTraitSlot++ else -1,
             effects = stageEffects
         )
     }
@@ -50,6 +50,6 @@ fun loadAgeStagesFromYaml(file: File, logger: Logger): AgeStages {
 data class StageConfig (
     val name: String,
     val age: Int? = 0,
-    val traitSlot: Int? = -1,
+    val traitSlot: Int,
     val effects: List<StageEffect>
 )
