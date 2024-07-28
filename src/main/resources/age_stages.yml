@@ -15,6 +15,9 @@ age-stages:
       - type: ATTRIBUTE
         attribute: GENERIC_MAX_HEALTH
         value: -14.0
+      - type: ATTRIBUTE
+        attribute: GENERIC_SCALE
+        value: -0.5
 
   - name: Early Childhood
     age: 2
@@ -32,6 +35,9 @@ age-stages:
       - type: ATTRIBUTE
         attribute: GENERIC_MAX_HEALTH
         value: -10.0
+      - type: ATTRIBUTE
+        attribute: GENERIC_SCALE
+        value: -0.45
 
   - name: Middle Childhood
     age: 6
@@ -49,6 +55,9 @@ age-stages:
       - type: ATTRIBUTE
         attribute: GENERIC_MAX_HEALTH
         value: -10.0
+      - type: ATTRIBUTE
+        attribute: GENERIC_SCALE
+        value: -0.4
 
   - name: Adolescence
     age: 12
@@ -63,6 +72,9 @@ age-stages:
       - type: ATTRIBUTE
         attribute: GENERIC_MAX_HEALTH
         value: -6.0
+      - type: ATTRIBUTE
+        attribute: GENERIC_SCALE
+        value: -0.25
 
   - name: Young Adulthood
     age: 18
