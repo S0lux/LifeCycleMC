@@ -52,7 +52,8 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
         server.pluginManager.registerEvents(
             LifeCycleAgingListener(
                 lifeCycleTraitManager,
-                lifeCycleNotificationManager
+                lifeCycleAgeManager,
+                lifeCycleNotificationManager,
             ), this
         )
     }

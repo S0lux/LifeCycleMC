@@ -1,6 +1,7 @@
 package com.github.s0lux.lifecycle.listeners
 
 import com.github.s0lux.lifecycle.events.AgingEvent
+import com.github.s0lux.lifecycle.managers.LifeCycleAgeManager
 import com.github.s0lux.lifecycle.managers.LifeCycleNotificationManager
 import com.github.s0lux.lifecycle.managers.LifeCycleTraitManager
 import org.bukkit.event.EventHandler
@@ -8,6 +9,7 @@ import org.bukkit.event.Listener
 
 class LifeCycleAgingListener(
     private val lifeCycleTraitManager: LifeCycleTraitManager,
+    private val lifeCycleAgeManager: LifeCycleAgeManager,
     private val lifeCycleNotificationManager: LifeCycleNotificationManager
 ): Listener {
     @EventHandler
@@ -23,5 +25,7 @@ class LifeCycleAgingListener(
             }
             else lifeCycleNotificationManager.notifyUnableToObtainTrait(player)
         }
+
+        lifeCycleAgeManager.updatePlayerStageEffects(player)
     }
 }

@@ -61,11 +61,4 @@ class LifeCyclePlayerListener(
             lifeCycleAgeManager.updatePlayerStageEffects(lifeCyclePlayer)
         }
     }
-
-    @EventHandler
-    fun onPlayerAge(event: AgingEvent) {
-        val lifeCyclePlayer = event.player
-
-        lifeCycleAgeManager.updatePlayerStageEffects(lifeCyclePlayer)
-    }
 }

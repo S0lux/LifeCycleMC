@@ -40,7 +40,6 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
             logger.info("Starting age cycle")
             while (isActive) {
                 players.filter { it.isAgingEnabled }.forEach { player ->
-                    // logger.info("Aging player ${player.bukkitPlayer.name} (${player.currentAge}, ${player.currentTicks})")
                     if (player.currentTicks + updateInterval >= ageInterval) {
                         player.currentAge++
                         player.currentTicks = 0
