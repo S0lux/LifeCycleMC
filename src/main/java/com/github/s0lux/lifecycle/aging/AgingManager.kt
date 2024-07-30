@@ -1,10 +1,7 @@
-package com.github.s0lux.lifecycle.managers
+package com.github.s0lux.lifecycle.aging
 
-import com.github.s0lux.lifecycle.events.AgingEvent
-import com.github.s0lux.lifecycle.utils.helpers.loadAgeStagesFromYaml
-import com.github.s0lux.lifecycle.utils.wrappers.AgeStages
-import com.github.s0lux.lifecycle.utils.wrappers.LifeCyclePlayer
-import com.github.s0lux.lifecycle.utils.wrappers.StageEffect
+import com.github.s0lux.lifecycle.player.BukkitPlayerWrapper
+import com.github.s0lux.lifecycle.util.loadAgeStagesFromYaml
 import com.github.shynixn.mccoroutine.bukkit.launch
 import com.github.shynixn.mccoroutine.bukkit.ticks
 import kotlinx.coroutines.Job
@@ -16,12 +13,12 @@ import org.koin.core.component.KoinComponent
 import java.io.File
 import java.util.logging.Logger
 
-class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: JavaPlugin) : KoinComponent {
+class AgingManager(private val logger: Logger, private val javaPlugin: JavaPlugin) : KoinComponent {
     private var ageCycleJob: Job? = null
     private val updateInterval: Int = javaPlugin.config.getInt("lifecycle.update-interval")
     private val ageInterval: Int = javaPlugin.config.getInt("lifecycle.age-interval")
 
-    var players: MutableList<LifeCyclePlayer> = mutableListOf()
+    var players: MutableList<BukkitPlayerWrapper> = mutableListOf()
         private set
 
     var activeAgeEffects: MutableMap<String, MutableList<StageEffect>> = mutableMapOf()
@@ -56,7 +53,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         }
     }
 
-    fun enrollPlayerToAgingCycle(player: LifeCyclePlayer) {
+    fun enrollPlayerToAgingCycle(player: BukkitPlayerWrapper) {
         if (players.contains(player)) {
             logger.warning("Attempted to register an already registered player.")
             return;
@@ -68,7 +65,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         players.removeIf { it.bukkitPlayer.uniqueId.toString() == uuid }
     }
 
-    private fun addStageEffect(player: LifeCyclePlayer, ageStageEffect: StageEffect) {
+    private fun addStageEffect(player: BukkitPlayerWrapper, ageStageEffect: StageEffect) {
         val uuid = player.bukkitPlayer.uniqueId.toString()
 
         activeAgeEffects.getOrPut(uuid) { mutableListOf() }.add(ageStageEffect)
@@ -84,7 +81,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         }
     }
 
-    fun clearPlayerStageEffects(player: LifeCyclePlayer) {
+    fun clearPlayerStageEffects(player: BukkitPlayerWrapper) {
         val uuid = player.bukkitPlayer.uniqueId.toString()
         val effects = activeAgeEffects[uuid]
 
@@ -105,12 +102,12 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         activeAgeEffects.remove(uuid)
     }
 
-    fun resetPlayerAge(player: LifeCyclePlayer) {
+    fun resetPlayerAge(player: BukkitPlayerWrapper) {
         player.currentAge = 0
         player.currentTicks = 0
     }
 
-    fun updatePlayerStageEffects(player: LifeCyclePlayer) {
+    fun updatePlayerStageEffects(player: BukkitPlayerWrapper) {
         if (player.currentAge > player.lifespan) {
             if (player.deathJob == null) {
                 initiateEndOfLifeProcess(player)
@@ -123,7 +120,7 @@ class LifeCycleAgeManager(private val logger: Logger, private val javaPlugin: Ja
         }
     }
 
-    private fun initiateEndOfLifeProcess(player: LifeCyclePlayer) {
+    private fun initiateEndOfLifeProcess(player: BukkitPlayerWrapper) {
         player.deathJob = javaPlugin.launch {
             val bukkitPlayer = player.bukkitPlayer
 

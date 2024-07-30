@@ -1,4 +1,4 @@
-package com.github.s0lux.lifecycle.utils.enums
+package com.github.s0lux.lifecycle.trait.interfaces
 
 import net.kyori.adventure.text.format.NamedTextColor
 

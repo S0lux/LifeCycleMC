@@ -1,15 +1,15 @@
-package com.github.s0lux.lifecycle.managers
+package com.github.s0lux.lifecycle.notification
 
-import com.github.s0lux.lifecycle.utils.interfaces.Trait
-import com.github.s0lux.lifecycle.utils.wrappers.LifeCyclePlayer
+import com.github.s0lux.lifecycle.trait.interfaces.Trait
+import com.github.s0lux.lifecycle.player.BukkitPlayerWrapper
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.koin.core.component.KoinComponent
 
-class LifeCycleNotificationManager() : KoinComponent {
-    fun notifyTraitObtained(player: LifeCyclePlayer, trait: Trait) {
+class NotificationManager() : KoinComponent {
+    fun notifyTraitObtained(player: BukkitPlayerWrapper, trait: Trait) {
         val bukkitPlayer = player.bukkitPlayer
         val message: Component =
             Component.text("You have obtained the trait: ")
@@ -21,7 +21,7 @@ class LifeCycleNotificationManager() : KoinComponent {
         bukkitPlayer.sendMessage(message)
     }
 
-    fun notifyUnableToObtainTrait(player: LifeCyclePlayer) {
+    fun notifyUnableToObtainTrait(player: BukkitPlayerWrapper) {
         val bukkitPlayer = player.bukkitPlayer
         val message: Component =
             Component.text("You are unable to manifest a trait.", NamedTextColor.DARK_RED)

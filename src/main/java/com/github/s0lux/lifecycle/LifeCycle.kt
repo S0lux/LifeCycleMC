@@ -1,11 +1,11 @@
 package com.github.s0lux.lifecycle
 
-import com.github.s0lux.lifecycle.listeners.LifeCycleAgingListener
-import com.github.s0lux.lifecycle.listeners.LifeCyclePlayerListener
-import com.github.s0lux.lifecycle.managers.LifeCycleAgeManager
-import com.github.s0lux.lifecycle.managers.LifeCycleDataManager
-import com.github.s0lux.lifecycle.managers.LifeCycleNotificationManager
-import com.github.s0lux.lifecycle.managers.LifeCycleTraitManager
+import com.github.s0lux.lifecycle.aging.AgingListener
+import com.github.s0lux.lifecycle.player.PlayerListener
+import com.github.s0lux.lifecycle.aging.AgingManager
+import com.github.s0lux.lifecycle.data.DataManager
+import com.github.s0lux.lifecycle.notification.NotificationManager
+import com.github.s0lux.lifecycle.trait.LifeCycleTraitManager
 import com.github.shynixn.mccoroutine.bukkit.SuspendingJavaPlugin
 import com.github.shynixn.mccoroutine.bukkit.registerSuspendingEvents
 import org.bukkit.plugin.java.JavaPlugin
@@ -16,10 +16,10 @@ import org.koin.dsl.module
 import java.util.logging.Logger
 
 class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
-    private val lifeCycleAgeManager: LifeCycleAgeManager by inject()
-    private val lifeCycleDataManager: LifeCycleDataManager by inject()
+    private val agingManager: AgingManager by inject()
+    private val dataManager: DataManager by inject()
     private val lifeCycleTraitManager: LifeCycleTraitManager by inject()
-    private val lifeCycleNotificationManager: LifeCycleNotificationManager by inject()
+    private val notificationManager: NotificationManager by inject()
 
     override suspend fun onEnableAsync() {
         startKoin {
@@ -27,9 +27,9 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
                 single<Logger> { getLogger() }
                 single<JavaPlugin> { this@LifeCycle }
                 single<LifeCycleTraitManager> { LifeCycleTraitManager(get(), get()) }
-                single<LifeCycleAgeManager> { LifeCycleAgeManager(get(), get()) }
-                single<LifeCycleDataManager> { LifeCycleDataManager(get(), get(), get(), get()) }
-                single<LifeCycleNotificationManager> { LifeCycleNotificationManager() }
+                single<AgingManager> { AgingManager(get(), get()) }
+                single<DataManager> { DataManager(get(), get(), get(), get()) }
+                single<NotificationManager> { NotificationManager() }
             })
         }
 
@@ -38,28 +38,28 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
         saveResource("age_stages.yml", false)
 
         // Setup plugin
-        lifeCycleDataManager.setupDatabase()
-        lifeCycleDataManager.startBackupJob()
-        lifeCycleAgeManager.initializeAgingCycle()
+        dataManager.setupDatabase()
+        dataManager.startBackupJob()
+        agingManager.initializeAgingCycle()
 
         // Register listeners
         server.pluginManager.registerSuspendingEvents(
-            LifeCyclePlayerListener(
-                lifeCycleDataManager, lifeCycleAgeManager
+            PlayerListener(
+                dataManager, agingManager
             ), this
         )
 
         server.pluginManager.registerEvents(
-            LifeCycleAgingListener(
+            AgingListener(
                 lifeCycleTraitManager,
-                lifeCycleAgeManager,
-                lifeCycleNotificationManager,
+                agingManager,
+                notificationManager,
             ), this
         )
     }
 
     override suspend fun onDisableAsync() {
-        lifeCycleDataManager.savePlayers(lifeCycleAgeManager.players)
-        lifeCycleAgeManager.players.forEach { lifeCycleAgeManager.clearPlayerStageEffects(it) }
+        dataManager.savePlayers(agingManager.players)
+        agingManager.players.forEach { agingManager.clearPlayerStageEffects(it) }
     }
 }

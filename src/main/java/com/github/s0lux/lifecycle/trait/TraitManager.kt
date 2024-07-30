@@ -1,8 +1,8 @@
-package com.github.s0lux.lifecycle.managers
+package com.github.s0lux.lifecycle.trait
 
-import com.github.s0lux.lifecycle.traits.ThickSkin
-import com.github.s0lux.lifecycle.utils.interfaces.Trait
-import com.github.s0lux.lifecycle.utils.wrappers.LifeCyclePlayer
+import com.github.s0lux.lifecycle.trait.premades.ThickSkin
+import com.github.s0lux.lifecycle.player.BukkitPlayerWrapper
+import com.github.s0lux.lifecycle.trait.interfaces.Trait
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinComponent
 import java.util.logging.Logger
@@ -40,7 +40,7 @@ class LifeCycleTraitManager(private val logger: Logger, private val javaPlugin: 
         return null
     }
 
-    fun addRandomTraitToPlayer(player: LifeCyclePlayer, slot: Int): Trait? {
+    fun addRandomTraitToPlayer(player: BukkitPlayerWrapper, slot: Int): Trait? {
         val trait: Trait? = getRandomTrait(player.traits.map { it.name })
 
         if (trait != null) {

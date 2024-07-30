@@ -1,7 +1,8 @@
-package com.github.s0lux.lifecycle.managers
+package com.github.s0lux.lifecycle.data
 
-import com.github.s0lux.lifecycle.schemas.LifeCyclePlayersTable
-import com.github.s0lux.lifecycle.utils.wrappers.LifeCyclePlayer
+import com.github.s0lux.lifecycle.aging.AgingManager
+import com.github.s0lux.lifecycle.trait.LifeCycleTraitManager
+import com.github.s0lux.lifecycle.player.BukkitPlayerWrapper
 import com.github.shynixn.mccoroutine.bukkit.launch
 import com.github.shynixn.mccoroutine.bukkit.ticks
 import kotlinx.coroutines.*
@@ -13,11 +14,11 @@ import org.koin.core.component.KoinComponent
 import java.util.*
 import java.util.logging.Logger
 
-class LifeCycleDataManager(
+class DataManager(
     private val logger: Logger,
     private val javaPlugin: JavaPlugin,
     private val lifeCycleTraitManager: LifeCycleTraitManager,
-    private val lifeCycleAgeManager: LifeCycleAgeManager
+    private val agingManager: AgingManager
 ) : KoinComponent {
     private val pluginFolder: String = javaPlugin.dataFolder.absolutePath
     private var database: Database = Database.connect("jdbc:sqlite:${pluginFolder}/database.db", "org.sqlite.JDBC")
@@ -28,7 +29,7 @@ class LifeCycleDataManager(
     suspend fun setupDatabase() {
         withContext(Dispatchers.IO) {
             transaction(database) {
-                SchemaUtils.createMissingTablesAndColumns(LifeCyclePlayersTable)
+                SchemaUtils.createMissingTablesAndColumns(PlayerSchema)
             }
         }
     }
@@ -43,17 +44,17 @@ class LifeCycleDataManager(
             delay(backupInterval.ticks)
 
             while (isActive) {
-                savePlayers(lifeCycleAgeManager.players)
+                savePlayers(agingManager.players)
                 delay(backupInterval.ticks)
             }
         }
     }
 
-    suspend fun savePlayers(players: List<LifeCyclePlayer>) {
+    suspend fun savePlayers(players: List<BukkitPlayerWrapper>) {
         withContext(Dispatchers.IO) {
             players.forEach { player ->
                 transaction(database) {
-                    LifeCyclePlayersTable.upsert {
+                    PlayerSchema.upsert {
                         it[uuid] = player.bukkitPlayer.uniqueId.toString()
                         it[currentAge] = player.currentAge
                         it[currentTicks] = player.currentTicks
@@ -64,28 +65,28 @@ class LifeCycleDataManager(
         }
     }
 
-    suspend fun getPlayer(uuid: String): LifeCyclePlayer {
+    suspend fun getPlayer(uuid: String): BukkitPlayerWrapper {
         return withContext(Dispatchers.IO) {
             transaction(database) {
-                LifeCyclePlayersTable.insertIgnore {
-                    it[LifeCyclePlayersTable.uuid] = uuid
+                PlayerSchema.insertIgnore {
+                    it[PlayerSchema.uuid] = uuid
                     it[currentAge] = 0
                     it[currentTicks] = 0
                     it[traits] = ""
                 }
 
-                LifeCyclePlayersTable.selectAll().where {
-                    LifeCyclePlayersTable.uuid eq uuid
+                PlayerSchema.selectAll().where {
+                    PlayerSchema.uuid eq uuid
                 }.singleOrNull()?.let { result ->
 
-                    val playerTraits = result[LifeCyclePlayersTable.traits]?.split(", ")?.mapNotNull { traitName ->
+                    val playerTraits = result[PlayerSchema.traits]?.split(", ")?.mapNotNull { traitName ->
                         lifeCycleTraitManager.getTraitFromName(traitName)
                     }?.toMutableList()
 
-                    LifeCyclePlayer(
-                        bukkitPlayer = Bukkit.getPlayer(UUID.fromString(result[LifeCyclePlayersTable.uuid]))!!,
-                        currentAge = result[LifeCyclePlayersTable.currentAge],
-                        currentTicks = result[LifeCyclePlayersTable.currentTicks],
+                    BukkitPlayerWrapper(
+                        bukkitPlayer = Bukkit.getPlayer(UUID.fromString(result[PlayerSchema.uuid]))!!,
+                        currentAge = result[PlayerSchema.currentAge],
+                        currentTicks = result[PlayerSchema.currentTicks],
                         traits = playerTraits ?: mutableListOf(),
                         lifespan = lifespan
                     )

@@ -1,6 +1,6 @@
-package com.github.s0lux.lifecycle.utils.wrappers
+package com.github.s0lux.lifecycle.aging
 
-import com.github.s0lux.lifecycle.utils.helpers.StageConfig
+import com.github.s0lux.lifecycle.util.StageConfig
 
 class AgeStages(val stages: List<StageConfig>) {
     init {

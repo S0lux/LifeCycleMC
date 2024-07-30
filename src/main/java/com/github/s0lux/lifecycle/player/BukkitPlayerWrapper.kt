@@ -1,11 +1,11 @@
-package com.github.s0lux.lifecycle.utils.wrappers
+package com.github.s0lux.lifecycle.player
 
-import com.github.s0lux.lifecycle.utils.interfaces.Trait
+import com.github.s0lux.lifecycle.trait.interfaces.Trait
 import kotlinx.coroutines.Job
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 
-class LifeCyclePlayer(
+class BukkitPlayerWrapper(
     var currentAge: Int,
     var currentTicks: Int,
     var traits: MutableList<Trait>,

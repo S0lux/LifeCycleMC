@@ -1,9 +1,7 @@
-package com.github.s0lux.lifecycle.utils.wrappers
+package com.github.s0lux.lifecycle.aging
 
-import io.papermc.paper.registry.TypedKey
 import org.bukkit.NamespacedKey
 import org.bukkit.Registry
-import org.bukkit.attribute.Attribute
 import org.bukkit.potion.PotionEffect
 
 sealed class StageEffect {

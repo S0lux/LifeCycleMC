@@ -1,7 +1,7 @@
-package com.github.s0lux.lifecycle.utils.helpers
+package com.github.s0lux.lifecycle.util
 
-import com.github.s0lux.lifecycle.utils.wrappers.AgeStages
-import com.github.s0lux.lifecycle.utils.wrappers.StageEffect
+import com.github.s0lux.lifecycle.aging.AgeStages
+import com.github.s0lux.lifecycle.aging.StageEffect
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 import java.util.logging.Logger
@@ -25,13 +25,19 @@ fun loadAgeStagesFromYaml(file: File, logger: Logger): AgeStages {
                 val raw = it as LinkedHashMap<*, *>
 
                 when (raw["type"].toString().uppercase()) {
-                    "POTION" -> stageEffects.add(StageEffect.Potion(
-                        effect = raw["effect"]?.toString(),
-                        amplifier = raw["amplifier"]?.toString()?.toIntOrNull()))
+                    "POTION" -> stageEffects.add(
+                        StageEffect.Potion(
+                            effect = raw["effect"]?.toString(),
+                            amplifier = raw["amplifier"]?.toString()?.toIntOrNull()
+                        )
+                    )
 
-                    "ATTRIBUTE" -> stageEffects.add(StageEffect.Attribute(
-                        attribute = raw["attribute"]?.toString().orEmpty(),
-                        value = raw["value"]?.toString()?.toDoubleOrNull()))
+                    "ATTRIBUTE" -> stageEffects.add(
+                        StageEffect.Attribute(
+                            attribute = raw["attribute"]?.toString().orEmpty(),
+                            value = raw["value"]?.toString()?.toDoubleOrNull()
+                        )
+                    )
                 }
             }
         }
