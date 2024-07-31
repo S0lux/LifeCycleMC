@@ -5,7 +5,7 @@ import kotlinx.coroutines.Job
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 
-class BukkitPlayerWrapper(
+class LifeCyclePlayer(
     var currentAge: Int,
     var currentTicks: Int,
     var traits: MutableList<Trait>,

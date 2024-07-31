@@ -2,6 +2,7 @@ package com.github.s0lux.lifecycle.player
 
 import com.github.s0lux.lifecycle.aging.AgingManager
 import com.github.s0lux.lifecycle.data.DataManager
+import com.github.s0lux.lifecycle.trait.TraitManager
 import com.github.shynixn.mccoroutine.bukkit.ticks
 import kotlinx.coroutines.delay
 import org.bukkit.event.EventHandler
@@ -14,6 +15,7 @@ import org.bukkit.event.player.PlayerRespawnEvent
 class PlayerListener(
     private val dataManager: DataManager,
     private val agingManager: AgingManager,
+    private val traitManager: TraitManager
 ) : Listener {
 
     @EventHandler
@@ -21,6 +23,7 @@ class PlayerListener(
         val bukkitPlayer = event.player
         val lifeCyclePlayer = dataManager.getPlayer(bukkitPlayer.uniqueId.toString())
 
+        traitManager.activateTraits(lifeCyclePlayer)
         agingManager.enrollPlayerToAgingCycle(lifeCyclePlayer)
         agingManager.updatePlayerStageEffects(lifeCyclePlayer)
     }
@@ -30,8 +33,9 @@ class PlayerListener(
         val bukkitPlayer = event.player
         val lifeCyclePlayer = agingManager.players.find { it.bukkitPlayer == bukkitPlayer }
 
-        if (lifeCyclePlayer is BukkitPlayerWrapper) {
+        if (lifeCyclePlayer is LifeCyclePlayer) {
             agingManager.unenrollPlayerFromAgingCycle(bukkitPlayer.uniqueId.toString())
+            traitManager.deactivateTraits(lifeCyclePlayer)
             agingManager.clearPlayerStageEffects(lifeCyclePlayer)
             dataManager.savePlayers(listOf(lifeCyclePlayer))
         }
@@ -42,8 +46,9 @@ class PlayerListener(
         val bukkitPlayer = event.player
         val lifeCyclePlayer = agingManager.players.find { it.bukkitPlayer == bukkitPlayer }
 
-        if (lifeCyclePlayer is BukkitPlayerWrapper) {
+        if (lifeCyclePlayer is LifeCyclePlayer) {
             agingManager.clearPlayerStageEffects(lifeCyclePlayer)
+            traitManager.activateTraits(lifeCyclePlayer)
             agingManager.resetPlayerAge(lifeCyclePlayer)
         }
     }
@@ -55,7 +60,8 @@ class PlayerListener(
         val bukkitPlayer = event.player
         val lifeCyclePlayer = agingManager.players.find { it.bukkitPlayer == bukkitPlayer }
 
-        if (lifeCyclePlayer is BukkitPlayerWrapper) {
+        if (lifeCyclePlayer is LifeCyclePlayer) {
+            traitManager.activateTraits(lifeCyclePlayer)
             agingManager.updatePlayerStageEffects(lifeCyclePlayer)
         }
     }

@@ -5,7 +5,7 @@ import com.github.s0lux.lifecycle.player.PlayerListener
 import com.github.s0lux.lifecycle.aging.AgingManager
 import com.github.s0lux.lifecycle.data.DataManager
 import com.github.s0lux.lifecycle.notification.NotificationManager
-import com.github.s0lux.lifecycle.trait.LifeCycleTraitManager
+import com.github.s0lux.lifecycle.trait.TraitManager
 import com.github.shynixn.mccoroutine.bukkit.SuspendingJavaPlugin
 import com.github.shynixn.mccoroutine.bukkit.registerSuspendingEvents
 import org.bukkit.plugin.java.JavaPlugin
@@ -18,7 +18,7 @@ import java.util.logging.Logger
 class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
     private val agingManager: AgingManager by inject()
     private val dataManager: DataManager by inject()
-    private val lifeCycleTraitManager: LifeCycleTraitManager by inject()
+    private val traitManager: TraitManager by inject()
     private val notificationManager: NotificationManager by inject()
 
     override suspend fun onEnableAsync() {
@@ -26,7 +26,7 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
             modules(module {
                 single<Logger> { getLogger() }
                 single<JavaPlugin> { this@LifeCycle }
-                single<LifeCycleTraitManager> { LifeCycleTraitManager(get(), get()) }
+                single<TraitManager> { TraitManager(get(), get()) }
                 single<AgingManager> { AgingManager(get(), get()) }
                 single<DataManager> { DataManager(get(), get(), get(), get()) }
                 single<NotificationManager> { NotificationManager() }
@@ -45,13 +45,13 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
         // Register listeners
         server.pluginManager.registerSuspendingEvents(
             PlayerListener(
-                dataManager, agingManager
+                dataManager, agingManager, traitManager
             ), this
         )
 
         server.pluginManager.registerEvents(
             AgingListener(
-                lifeCycleTraitManager,
+                traitManager,
                 agingManager,
                 notificationManager,
             ), this

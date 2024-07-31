@@ -1,12 +1,12 @@
 package com.github.s0lux.lifecycle.aging
 
 import com.github.s0lux.lifecycle.notification.NotificationManager
-import com.github.s0lux.lifecycle.trait.LifeCycleTraitManager
+import com.github.s0lux.lifecycle.trait.TraitManager
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 
 class AgingListener(
-    private val lifeCycleTraitManager: LifeCycleTraitManager,
+    private val traitManager: TraitManager,
     private val agingManager: AgingManager,
     private val notificationManager: NotificationManager
 ): Listener {
@@ -16,7 +16,7 @@ class AgingListener(
         val agingInfo = event.stageInfo
 
         if (agingInfo.stage.traitSlot > -1) {
-            val trait = lifeCycleTraitManager.addRandomTraitToPlayer(player, agingInfo.stage.traitSlot)
+            val trait = traitManager.addRandomTraitToPlayer(player, agingInfo.stage.traitSlot)
 
             if (trait != null) {
                 notificationManager.notifyTraitObtained(player, trait)
@@ -24,6 +24,7 @@ class AgingListener(
             else notificationManager.notifyUnableToObtainTrait(player)
         }
 
+        traitManager.activateTraits(player)
         agingManager.updatePlayerStageEffects(player)
     }
 }

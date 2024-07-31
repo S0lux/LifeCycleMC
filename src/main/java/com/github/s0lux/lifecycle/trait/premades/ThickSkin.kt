@@ -1,6 +1,6 @@
 package com.github.s0lux.lifecycle.trait.premades
 
-import com.github.s0lux.lifecycle.player.BukkitPlayerWrapper
+import com.github.s0lux.lifecycle.player.LifeCyclePlayer
 import com.github.s0lux.lifecycle.trait.interfaces.Rarity
 import com.github.s0lux.lifecycle.trait.interfaces.Trait
 import net.kyori.adventure.text.Component
@@ -16,7 +16,7 @@ object ThickSkin : Trait {
             .append(Component.text("+0.5HP", NamedTextColor.RED))
     override val isHereditary: Boolean = false
 
-    override fun apply(player: BukkitPlayerWrapper, javaPlugin: JavaPlugin) {
+    override fun apply(player: LifeCyclePlayer, javaPlugin: JavaPlugin) {
         val bukkitPlayer = player.bukkitPlayer
         val attribute = bukkitPlayer.getAttribute(Attribute.GENERIC_ARMOR)
 
@@ -25,7 +25,7 @@ object ThickSkin : Trait {
         }
     }
 
-    override fun unApply(player: BukkitPlayerWrapper, javaPlugin: JavaPlugin) {
+    override fun unApply(player: LifeCyclePlayer, javaPlugin: JavaPlugin) {
         val bukkitPlayer = player.bukkitPlayer
         val attribute = bukkitPlayer.getAttribute(Attribute.GENERIC_ARMOR)
 

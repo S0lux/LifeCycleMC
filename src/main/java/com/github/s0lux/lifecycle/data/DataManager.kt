@@ -1,8 +1,8 @@
 package com.github.s0lux.lifecycle.data
 
 import com.github.s0lux.lifecycle.aging.AgingManager
-import com.github.s0lux.lifecycle.trait.LifeCycleTraitManager
-import com.github.s0lux.lifecycle.player.BukkitPlayerWrapper
+import com.github.s0lux.lifecycle.trait.TraitManager
+import com.github.s0lux.lifecycle.player.LifeCyclePlayer
 import com.github.shynixn.mccoroutine.bukkit.launch
 import com.github.shynixn.mccoroutine.bukkit.ticks
 import kotlinx.coroutines.*
@@ -17,7 +17,7 @@ import java.util.logging.Logger
 class DataManager(
     private val logger: Logger,
     private val javaPlugin: JavaPlugin,
-    private val lifeCycleTraitManager: LifeCycleTraitManager,
+    private val traitManager: TraitManager,
     private val agingManager: AgingManager
 ) : KoinComponent {
     private val pluginFolder: String = javaPlugin.dataFolder.absolutePath
@@ -50,7 +50,7 @@ class DataManager(
         }
     }
 
-    suspend fun savePlayers(players: List<BukkitPlayerWrapper>) {
+    suspend fun savePlayers(players: List<LifeCyclePlayer>) {
         withContext(Dispatchers.IO) {
             players.forEach { player ->
                 transaction(database) {
@@ -65,7 +65,7 @@ class DataManager(
         }
     }
 
-    suspend fun getPlayer(uuid: String): BukkitPlayerWrapper {
+    suspend fun getPlayer(uuid: String): LifeCyclePlayer {
         return withContext(Dispatchers.IO) {
             transaction(database) {
                 PlayerSchema.insertIgnore {
@@ -80,10 +80,10 @@ class DataManager(
                 }.singleOrNull()?.let { result ->
 
                     val playerTraits = result[PlayerSchema.traits]?.split(", ")?.mapNotNull { traitName ->
-                        lifeCycleTraitManager.getTraitFromName(traitName)
+                        traitManager.getTraitFromName(traitName)
                     }?.toMutableList()
 
-                    BukkitPlayerWrapper(
+                    LifeCyclePlayer(
                         bukkitPlayer = Bukkit.getPlayer(UUID.fromString(result[PlayerSchema.uuid]))!!,
                         currentAge = result[PlayerSchema.currentAge],
                         currentTicks = result[PlayerSchema.currentTicks],

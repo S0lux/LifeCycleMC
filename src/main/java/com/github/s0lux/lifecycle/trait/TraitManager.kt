@@ -1,16 +1,18 @@
 package com.github.s0lux.lifecycle.trait
 
 import com.github.s0lux.lifecycle.trait.premades.ThickSkin
-import com.github.s0lux.lifecycle.player.BukkitPlayerWrapper
+import com.github.s0lux.lifecycle.player.LifeCyclePlayer
 import com.github.s0lux.lifecycle.trait.interfaces.Trait
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinComponent
 import java.util.logging.Logger
 
-class LifeCycleTraitManager(private val logger: Logger, private val javaPlugin: JavaPlugin) : KoinComponent {
+class TraitManager(private val logger: Logger, private val javaPlugin: JavaPlugin) : KoinComponent {
     private val traits: MutableList<Trait> = mutableListOf(
         ThickSkin
     )
+
+    private val appliedTraits: MutableMap<LifeCyclePlayer, MutableList<Trait>> = mutableMapOf()
 
     fun getTraitFromName(name: String): Trait? {
         if (name.isEmpty()) return null
@@ -40,7 +42,7 @@ class LifeCycleTraitManager(private val logger: Logger, private val javaPlugin: 
         return null
     }
 
-    fun addRandomTraitToPlayer(player: BukkitPlayerWrapper, slot: Int): Trait? {
+    fun addRandomTraitToPlayer(player: LifeCyclePlayer, slot: Int): Trait? {
         val trait: Trait? = getRandomTrait(player.traits.map { it.name })
 
         if (trait != null) {
@@ -54,5 +56,37 @@ class LifeCycleTraitManager(private val logger: Logger, private val javaPlugin: 
 
         logger.warning("Unable to generate a suitable trait for player: ${player.bukkitPlayer.name}")
         return null
+    }
+
+    fun activateTraits(player: LifeCyclePlayer) {
+        val activeTraits = appliedTraits[player]
+
+        if (activeTraits == null) {
+            appliedTraits[player] = mutableListOf()
+            player.traits.forEach { trait ->
+                trait.apply(player, javaPlugin)
+                appliedTraits[player]?.add(trait)
+            }
+        }
+        else {
+            player.traits.forEach { trait ->
+                if (trait !in activeTraits) {
+                    trait.apply(player, javaPlugin)
+                    appliedTraits[player]?.add(trait)
+                }
+            }
+        }
+    }
+
+    fun deactivateTraits(player: LifeCyclePlayer) {
+        val activeTraits = appliedTraits[player]
+
+        if (activeTraits != null) {
+            activeTraits.forEach { trait ->
+                trait.unApply(player, javaPlugin)
+            }
+
+            appliedTraits.remove(player)
+        }
     }
 }

@@ -1,6 +1,6 @@
 package com.github.s0lux.lifecycle.trait.interfaces
 
-import com.github.s0lux.lifecycle.player.BukkitPlayerWrapper
+import com.github.s0lux.lifecycle.player.LifeCyclePlayer
 import net.kyori.adventure.text.Component
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -12,6 +12,6 @@ interface Trait {
     // Doesn't do anything yet, maybe in the future it'll do something
     val isHereditary: Boolean
 
-    fun apply(player: BukkitPlayerWrapper, javaPlugin: JavaPlugin)
-    fun unApply(player: BukkitPlayerWrapper, javaPlugin: JavaPlugin)
+    fun apply(player: LifeCyclePlayer, javaPlugin: JavaPlugin)
+    fun unApply(player: LifeCyclePlayer, javaPlugin: JavaPlugin)
 }
