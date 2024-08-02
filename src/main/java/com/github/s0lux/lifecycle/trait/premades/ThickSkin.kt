@@ -18,19 +18,19 @@ object ThickSkin : Trait {
 
     override fun apply(player: LifeCyclePlayer, javaPlugin: JavaPlugin) {
         val bukkitPlayer = player.bukkitPlayer
-        val attribute = bukkitPlayer.getAttribute(Attribute.GENERIC_ARMOR)
+        val attribute = bukkitPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH)
 
         if (attribute != null) {
-            attribute.baseValue += 0.5
+            attribute.baseValue += 1.0
         }
     }
 
     override fun unApply(player: LifeCyclePlayer, javaPlugin: JavaPlugin) {
         val bukkitPlayer = player.bukkitPlayer
-        val attribute = bukkitPlayer.getAttribute(Attribute.GENERIC_ARMOR)
+        val attribute = bukkitPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH)
 
         if (attribute != null) {
-            attribute.baseValue -= 0.5
+            attribute.baseValue -= 1.0
         }
     }
 }

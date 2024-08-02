@@ -8,9 +8,10 @@ import com.github.shynixn.mccoroutine.bukkit.ticks
 import kotlinx.coroutines.*
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
+import java.sql.Connection
+import java.sql.DriverManager
+import java.sql.Statement
 import java.util.*
 import java.util.logging.Logger
 
@@ -21,16 +22,25 @@ class DataManager(
     private val agingManager: AgingManager
 ) : KoinComponent {
     private val pluginFolder: String = javaPlugin.dataFolder.absolutePath
-    private var database: Database = Database.connect("jdbc:sqlite:${pluginFolder}/database.db", "org.sqlite.JDBC")
+    private var connection: Connection? = null
     private var backupJob: Job? = null
     private val backupInterval: Int = javaPlugin.config.getInt("lifecycle.backup-interval")
     private val lifespan: Int = javaPlugin.config.getInt("lifecycle.lifespan")
 
-    suspend fun setupDatabase() {
-        withContext(Dispatchers.IO) {
-            transaction(database) {
-                SchemaUtils.createMissingTablesAndColumns(PlayerSchema)
-            }
+    fun setupDatabase() {
+        if (connection == null) {
+            connection = DriverManager.getConnection("jdbc:sqlite:${pluginFolder}/players.db")
+
+            val statement: Statement = connection!!.createStatement()
+            statement.execute("""
+                CREATE TABLE IF NOT EXISTS Players (
+                    uuid VARCHAR(36) UNIQUE,
+                    current_age INTEGER,
+                    current_ticks INTEGER,
+                    traits VARCHAR(64)
+                );
+            """.trimIndent())
+            statement.close()
         }
     }
 
@@ -52,13 +62,17 @@ class DataManager(
 
     suspend fun savePlayers(players: List<LifeCyclePlayer>) {
         withContext(Dispatchers.IO) {
-            players.forEach { player ->
-                transaction(database) {
-                    PlayerSchema.upsert {
-                        it[uuid] = player.bukkitPlayer.uniqueId.toString()
-                        it[currentAge] = player.currentAge
-                        it[currentTicks] = player.currentTicks
-                        it[traits] = player.traits.joinToString { it.name }
+            connection?.let { conn ->
+                conn.prepareStatement("""
+                    INSERT OR REPLACE INTO Players (uuid, current_age, current_ticks, traits)
+                    VALUES (?, ?, ?, ?)
+                """.trimIndent()).use { stmt ->
+                    players.forEach { player ->
+                        stmt.setString(1, player.bukkitPlayer.uniqueId.toString())
+                        stmt.setInt(2, player.currentAge)
+                        stmt.setInt(3, player.currentTicks)
+                        stmt.setString(4, player.traits.joinToString { it.name })
+                        stmt.executeUpdate()
                     }
                 }
             }
@@ -67,32 +81,36 @@ class DataManager(
 
     suspend fun getPlayer(uuid: String): LifeCyclePlayer {
         return withContext(Dispatchers.IO) {
-            transaction(database) {
-                PlayerSchema.insertIgnore {
-                    it[PlayerSchema.uuid] = uuid
-                    it[currentAge] = 0
-                    it[currentTicks] = 0
-                    it[traits] = ""
+            connection?.let { conn ->
+                conn.prepareStatement("""
+                    INSERT OR IGNORE INTO Players (uuid, current_age, current_ticks, traits)
+                    VALUES (?, 0, 0, '')
+                """.trimIndent()).use { stmt ->
+                    stmt.setString(1, uuid)
+                    stmt.executeUpdate()
                 }
 
-                PlayerSchema.selectAll().where {
-                    PlayerSchema.uuid eq uuid
-                }.singleOrNull()?.let { result ->
+                conn.prepareStatement("SELECT * FROM Players WHERE uuid = ?").use { stmt ->
+                    stmt.setString(1, uuid)
+                    val resultSet = stmt.executeQuery()
+                    if (resultSet.next()) {
+                        val playerTraits = resultSet.getString("traits")
+                            .split(", ")
+                            .mapNotNull { traitName -> traitManager.getTraitFromName(traitName) }
+                            .toMutableList()
 
-                    val playerTraits = result[PlayerSchema.traits]?.split(", ")?.mapNotNull { traitName ->
-                        traitManager.getTraitFromName(traitName)
-                    }?.toMutableList()
-
-                    LifeCyclePlayer(
-                        bukkitPlayer = Bukkit.getPlayer(UUID.fromString(result[PlayerSchema.uuid]))!!,
-                        currentAge = result[PlayerSchema.currentAge],
-                        currentTicks = result[PlayerSchema.currentTicks],
-                        traits = playerTraits ?: mutableListOf(),
-                        lifespan = lifespan
-                    )
-                } ?: throw IllegalStateException("Player with uuid $uuid not found in database")
-            }
+                        LifeCyclePlayer(
+                            bukkitPlayer = Bukkit.getPlayer(UUID.fromString(uuid))!!,
+                            currentAge = resultSet.getInt("current_age"),
+                            currentTicks = resultSet.getInt("current_ticks"),
+                            traits = playerTraits,
+                            lifespan = lifespan
+                        )
+                    } else {
+                        throw IllegalStateException("Player with uuid $uuid not found in database")
+                    }
+                }
+            } ?: throw IllegalStateException("Database connection is not initialized")
         }
     }
-
 }

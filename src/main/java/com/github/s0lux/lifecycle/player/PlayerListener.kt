@@ -48,8 +48,10 @@ class PlayerListener(
 
         if (lifeCyclePlayer is LifeCyclePlayer) {
             agingManager.clearPlayerStageEffects(lifeCyclePlayer)
-            traitManager.activateTraits(lifeCyclePlayer)
+            traitManager.deactivateTraits(lifeCyclePlayer)
             agingManager.resetPlayerAge(lifeCyclePlayer)
+
+            lifeCyclePlayer.traits.clear()
         }
     }
 
