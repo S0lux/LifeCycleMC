@@ -139,4 +139,7 @@ class AgingManager(private val logger: Logger, private val javaPlugin: JavaPlugi
             }
         }
     }
+
+    fun findLifeCyclePlayer(uuid: String): LifeCyclePlayer? =
+        players.find { it.bukkitPlayer.uniqueId.toString() == uuid }
 }

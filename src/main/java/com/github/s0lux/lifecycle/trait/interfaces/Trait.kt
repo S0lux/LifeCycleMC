@@ -12,6 +12,7 @@ interface Trait {
     // Doesn't do anything yet, maybe in the future it'll do something
     val isHereditary: Boolean
 
-    fun apply(player: LifeCyclePlayer, javaPlugin: JavaPlugin)
-    fun unApply(player: LifeCyclePlayer, javaPlugin: JavaPlugin)
+    fun initialize(javaPlugin: JavaPlugin)
+    fun apply(player: LifeCyclePlayer)
+    fun unApply(player: LifeCyclePlayer)
 }

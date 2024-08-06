@@ -1,18 +1,26 @@
 package com.github.s0lux.lifecycle.trait
 
-import com.github.s0lux.lifecycle.trait.premades.ThickSkin
 import com.github.s0lux.lifecycle.player.LifeCyclePlayer
 import com.github.s0lux.lifecycle.trait.interfaces.Trait
+import com.github.s0lux.lifecycle.trait.premades.NightOwl
+import com.github.s0lux.lifecycle.trait.premades.ThickSkin
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinComponent
 import java.util.logging.Logger
 
 class TraitManager(private val logger: Logger, private val javaPlugin: JavaPlugin) : KoinComponent {
-    private val traits: MutableList<Trait> = mutableListOf(
-        ThickSkin
+    val traits: MutableList<Trait> = mutableListOf(
+        ThickSkin,
+        NightOwl
     )
 
     private val appliedTraits: MutableMap<LifeCyclePlayer, MutableList<Trait>> = mutableMapOf()
+
+    fun initializeTraits() {
+        traits.forEach { trait ->
+            trait.initialize(javaPlugin)
+        }
+    }
 
     fun getTraitFromName(name: String): Trait? {
         if (name.isEmpty()) return null
@@ -42,16 +50,22 @@ class TraitManager(private val logger: Logger, private val javaPlugin: JavaPlugi
         return null
     }
 
-    fun addRandomTraitToPlayer(player: LifeCyclePlayer, slot: Int): Trait? {
-        val trait: Trait? = getRandomTrait(player.traits.map { it.name })
+    fun addTraitToPlayer(player: LifeCyclePlayer, slot: Int, overrideTrait: Trait? = null): Trait? {
+        var trait: Trait? = null
+
+        if (overrideTrait == null) {
+            trait = getRandomTrait(player.traits.map { it.name })
+        }
+        else trait = overrideTrait
 
         if (trait != null) {
-            // This is to prevent setAge command from adding more trait than required
-            if (player.traits.count() == slot) {
+            if (player.traits.size <= slot) {
                 player.traits.add(trait)
                 return trait
+            } else {
+                player.traits[slot] = trait
+                return trait
             }
-            return player.traits.last()
         }
 
         logger.warning("Unable to generate a suitable trait for player: ${player.bukkitPlayer.name}")
@@ -64,14 +78,14 @@ class TraitManager(private val logger: Logger, private val javaPlugin: JavaPlugi
         if (activeTraits == null) {
             appliedTraits[player] = mutableListOf()
             player.traits.forEach { trait ->
-                trait.apply(player, javaPlugin)
+                trait.apply(player)
                 appliedTraits[player]?.add(trait)
             }
         }
         else {
             player.traits.forEach { trait ->
                 if (trait !in activeTraits) {
-                    trait.apply(player, javaPlugin)
+                    trait.apply(player)
                     appliedTraits[player]?.add(trait)
                 }
             }
@@ -83,7 +97,7 @@ class TraitManager(private val logger: Logger, private val javaPlugin: JavaPlugi
 
         if (activeTraits != null) {
             activeTraits.forEach { trait ->
-                trait.unApply(player, javaPlugin)
+                trait.unApply(player)
             }
 
             appliedTraits.remove(player)

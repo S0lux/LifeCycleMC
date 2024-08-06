@@ -1,8 +1,8 @@
 package com.github.s0lux.lifecycle.data
 
 import com.github.s0lux.lifecycle.aging.AgingManager
-import com.github.s0lux.lifecycle.trait.TraitManager
 import com.github.s0lux.lifecycle.player.LifeCyclePlayer
+import com.github.s0lux.lifecycle.trait.TraitManager
 import com.github.shynixn.mccoroutine.bukkit.launch
 import com.github.shynixn.mccoroutine.bukkit.ticks
 import kotlinx.coroutines.*

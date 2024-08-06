@@ -47,8 +47,8 @@ class PlayerListener(
         val lifeCyclePlayer = agingManager.players.find { it.bukkitPlayer == bukkitPlayer }
 
         if (lifeCyclePlayer is LifeCyclePlayer) {
-            agingManager.clearPlayerStageEffects(lifeCyclePlayer)
             traitManager.deactivateTraits(lifeCyclePlayer)
+            agingManager.clearPlayerStageEffects(lifeCyclePlayer)
             agingManager.resetPlayerAge(lifeCyclePlayer)
 
             lifeCyclePlayer.traits.clear()

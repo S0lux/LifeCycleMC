@@ -15,8 +15,13 @@ class AgingListener(
         val player = event.player
         val agingInfo = event.stageInfo
 
-        if (agingInfo.stage.traitSlot > -1) {
-            val trait = traitManager.addRandomTraitToPlayer(player, agingInfo.stage.traitSlot)
+        if (player.currentAge == player.lifespan + 1) {
+            notificationManager.notifyEndOfLife(player)
+        }
+        else notificationManager.notifyAge(player, agingInfo)
+
+        if (agingInfo.stage.traitSlot > -1 && agingInfo.isNewStage) {
+            val trait = traitManager.addTraitToPlayer(player, agingInfo.stage.traitSlot)
 
             if (trait != null) {
                 notificationManager.notifyTraitObtained(player, trait)

@@ -16,7 +16,11 @@ object ThickSkin : Trait {
             .append(Component.text("+0.5HP", NamedTextColor.RED))
     override val isHereditary: Boolean = false
 
-    override fun apply(player: LifeCyclePlayer, javaPlugin: JavaPlugin) {
+    override fun initialize(javaPlugin: JavaPlugin) {
+        // Nothing!
+    }
+
+    override fun apply(player: LifeCyclePlayer) {
         val bukkitPlayer = player.bukkitPlayer
         val attribute = bukkitPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH)
 
@@ -25,7 +29,7 @@ object ThickSkin : Trait {
         }
     }
 
-    override fun unApply(player: LifeCyclePlayer, javaPlugin: JavaPlugin) {
+    override fun unApply(player: LifeCyclePlayer) {
         val bukkitPlayer = player.bukkitPlayer
         val attribute = bukkitPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH)
 
