@@ -2,8 +2,7 @@ package com.github.s0lux.lifecycle.trait
 
 import com.github.s0lux.lifecycle.player.LifeCyclePlayer
 import com.github.s0lux.lifecycle.trait.interfaces.Trait
-import com.github.s0lux.lifecycle.trait.premades.NightOwl
-import com.github.s0lux.lifecycle.trait.premades.ThickSkin
+import com.github.s0lux.lifecycle.trait.premades.*
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinComponent
 import java.util.logging.Logger
@@ -11,7 +10,14 @@ import java.util.logging.Logger
 class TraitManager(private val logger: Logger, private val javaPlugin: JavaPlugin) : KoinComponent {
     val traits: MutableList<Trait> = mutableListOf(
         ThickSkin,
-        NightOwl
+        NightOwl,
+        Photosynthesis,
+        Chameleon,
+        GreenThumb,
+        TerrainMaster,
+        AquaticAdept,
+        LongLife,
+        Cancer
     )
 
     private val appliedTraits: MutableMap<LifeCyclePlayer, MutableList<Trait>> = mutableMapOf()

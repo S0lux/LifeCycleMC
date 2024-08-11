@@ -75,6 +75,9 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
     override suspend fun onDisableAsync() {
         CommandAPI.onDisable()
         dataManager.savePlayers(agingManager.players)
-        agingManager.players.forEach { agingManager.clearPlayerStageEffects(it) }
+        agingManager.players.forEach {
+            it.traits.forEach { trait -> trait.unApply(it) }
+            agingManager.clearPlayerStageEffects(it)
+        }
     }
 }

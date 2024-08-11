@@ -14,6 +14,7 @@ class CommandManager(val agingManager: AgingManager, val traitManager: TraitMana
 
         val TraitCommands = CommandAPICommand("trait")
             .withSubcommand(TraitCommands(agingManager, traitManager).createSetTraitCommand())
+            .withSubcommand(TraitCommands(agingManager, traitManager).createListTraitCommand())
 
         CommandAPICommand("lifecycle")
             .withAliases("life")

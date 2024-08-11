@@ -37,6 +37,7 @@ class InfoCommands(val agingManager: AgingManager) {
             .append(Component.text("Traits: ")).append(createTraitsComponent(lifeCyclePlayer?.traits)).build()
     }
 
+    // Move this to a util class later
     private fun createTraitsComponent(traits: List<Trait>?): TextComponent.Builder {
         if (traits.isNullOrEmpty()) return Component.text().content("None")
         val traitDisplay = Component.text()
@@ -50,7 +51,7 @@ class InfoCommands(val agingManager: AgingManager) {
                             .text(trait.name)
                             .color(trait.rarity.color)
                             .decoration(TextDecoration.UNDERLINED, true)
-                            .hoverEvent(HoverEvent.showText(trait.description)))
+                            .hoverEvent(HoverEvent.showText(createTraitHoverComponent(trait))))
                 )
 
             if (index < traits.size - 1) {
@@ -59,5 +60,14 @@ class InfoCommands(val agingManager: AgingManager) {
         }
 
         return traitDisplay
+    }
+
+    private fun createTraitHoverComponent(trait: Trait): Component {
+        return Component
+            .text(trait.name + " (${trait.rarity.name})")
+            .color(trait.rarity.color)
+            .decoration(TextDecoration.BOLD, true)
+            .appendNewline()
+            .append(trait.description.decoration(TextDecoration.BOLD, false))
     }
 }

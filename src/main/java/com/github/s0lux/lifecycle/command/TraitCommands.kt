@@ -10,8 +10,12 @@ import dev.jorel.commandapi.arguments.PlayerArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.entity.Player
+import org.bukkit.plugin.java.JavaPlugin
 
 class TraitCommands(val agingManager: AgingManager, val traitManager: TraitManager) {
     val traitNames = traitManager.traits.map { it.name.replace(" ", "_") }
@@ -55,18 +59,57 @@ class TraitCommands(val agingManager: AgingManager, val traitManager: TraitManag
                     return@CommandExecutor
                 }
 
-                // Sorry for the spaghetti ;(
-
-                if (lifeCyclePlayer.traits.count() <= slot) {
-                    lifeCyclePlayer.traits.last().unApply(lifeCyclePlayer)
-                }
-                else lifeCyclePlayer.traits[slot].unApply(lifeCyclePlayer)
 
                 traitManager.addTraitToPlayer(lifeCyclePlayer, slot, trait)
-                trait.apply(lifeCyclePlayer)
+                traitManager.deactivateTraits(lifeCyclePlayer)
+                traitManager.activateTraits(lifeCyclePlayer)
 
                 commandSender.sendMessage(
                     Component.text("Trait added to player").color(NamedTextColor.GREEN)
                 )
             })
+
+    fun createListTraitCommand() =
+        CommandAPICommand("list")
+            .executes(CommandExecutor { commandSender, commandArguments ->
+                val sortedTraits = traitManager.traits.sortedWith(
+                    Comparator { o1, o2 -> o1.rarity.weight.compareTo(o2.rarity.weight) }
+                )
+
+                commandSender.sendMessage(Component.text("Traits: ").append(createTraitsComponent(sortedTraits)))
+            })
+
+    // Move this to a util class later
+    private fun createTraitsComponent(traits: List<Trait>?): TextComponent.Builder {
+        if (traits.isNullOrEmpty()) return Component.text().content("None")
+        val traitDisplay = Component.text()
+
+        traits.forEachIndexed { index, trait ->
+            traitDisplay
+                .append(
+                    Component.text()
+                        .append(
+                            Component
+                                .text(trait.name)
+                                .color(trait.rarity.color)
+                                .decoration(TextDecoration.UNDERLINED, true)
+                                .hoverEvent(HoverEvent.showText(createTraitHoverComponent(trait))))
+                )
+
+            if (index < traits.size - 1) {
+                traitDisplay.append(Component.text(", "))
+            }
+        }
+
+        return traitDisplay
+    }
+
+    private fun createTraitHoverComponent(trait: Trait): Component {
+        return Component
+            .text(trait.name + " (${trait.rarity.name})")
+            .color(trait.rarity.color)
+            .decoration(TextDecoration.BOLD, true)
+            .appendNewline()
+            .append(trait.description.decoration(TextDecoration.BOLD, false))
+    }
 }
