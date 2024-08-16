@@ -41,8 +41,6 @@ class NotificationManager() : KoinComponent {
                 "You have reached the end of your lifespan, you will not survive next year.",
                 NamedTextColor.GOLD
             )
-        } else if (player.currentAge > player.lifespan) {
-            Component.text("Your time has come...", NamedTextColor.DARK_RED)
         } else if (agingInfo.isNewStage) {
             Component.text("You are now at the stage: ${agingInfo.stage.name}")
         } else Component.text("You are now ${player.currentAge} years old.")
@@ -56,7 +54,7 @@ class NotificationManager() : KoinComponent {
 
     fun notifyEndOfLife(player: LifeCyclePlayer) {
         val bukkitPlayer = player.bukkitPlayer
-        val message: Component = Component.text("You are now dying from old age.").color(NamedTextColor.GOLD)
+        val message: Component = Component.text("Your time has come...", NamedTextColor.DARK_RED)
 
         bukkitPlayer.sendMessage(message)
     }
