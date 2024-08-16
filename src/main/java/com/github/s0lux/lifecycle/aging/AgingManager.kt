@@ -133,6 +133,7 @@ class AgingManager(private val logger: Logger, private val javaPlugin: JavaPlugi
 
                 if (bukkitPlayer.isDead || bukkitPlayer.isConnected.not()) {
                     cancel()
+                    player.deathJob = null
                 }
 
                 delay(12.ticks)
