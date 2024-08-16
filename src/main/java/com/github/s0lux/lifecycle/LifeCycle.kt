@@ -5,12 +5,14 @@ import com.github.s0lux.lifecycle.aging.AgingManager
 import com.github.s0lux.lifecycle.command.CommandManager
 import com.github.s0lux.lifecycle.data.DataManager
 import com.github.s0lux.lifecycle.notification.NotificationManager
+import com.github.s0lux.lifecycle.placeholderAPI.LifeCycleExpansion
 import com.github.s0lux.lifecycle.player.PlayerListener
 import com.github.s0lux.lifecycle.trait.TraitManager
 import com.github.shynixn.mccoroutine.bukkit.SuspendingJavaPlugin
 import com.github.shynixn.mccoroutine.bukkit.registerSuspendingEvents
 import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPIBukkitConfig
+import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -66,6 +68,10 @@ class LifeCycle : SuspendingJavaPlugin(), KoinComponent {
             ), this
         )
 
+        // Register placeholderAPI
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            LifeCycleExpansion(this, agingManager, traitManager).register()
+        }
     }
 
     override suspend fun onLoadAsync() {
