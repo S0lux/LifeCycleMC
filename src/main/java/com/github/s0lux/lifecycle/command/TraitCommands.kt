@@ -15,13 +15,12 @@ import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.entity.Player
-import org.bukkit.plugin.java.JavaPlugin
 
 class TraitCommands(val agingManager: AgingManager, val traitManager: TraitManager) {
     val traitNames = traitManager.traits.map { it.name.replace(" ", "_") }
     val numberOfSlots = agingManager.ageStages.stages.count { it.traitSlot > -1 }
 
-    fun createSetTraitCommand() =
+    fun createSetTraitCommand(): CommandAPICommand =
         CommandAPICommand("set")
             .withPermission("lifecycle.trait.set")
             .withArguments(
@@ -69,13 +68,11 @@ class TraitCommands(val agingManager: AgingManager, val traitManager: TraitManag
                 )
             })
 
-    fun createListTraitCommand() =
+    fun createListTraitCommand(): CommandAPICommand =
         CommandAPICommand("list")
-            .executes(CommandExecutor { commandSender, commandArguments ->
-                val sortedTraits = traitManager.traits.sortedWith(
-                    Comparator { o1, o2 -> o1.rarity.weight.compareTo(o2.rarity.weight) }
-                )
-
+            .withPermission("lifecycle.trait.list")
+            .executes(CommandExecutor { commandSender, _ ->
+                val sortedTraits = traitManager.traits.sortedWith { o1, o2 -> o1.rarity.weight.compareTo(o2.rarity.weight) }
                 commandSender.sendMessage(Component.text("Traits: ").append(createTraitsComponent(sortedTraits)))
             })
 

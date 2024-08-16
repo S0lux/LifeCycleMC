@@ -13,7 +13,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 class AgeCommands(private val agingManager: AgingManager) {
-    fun createSetAgeCommand() =
+    fun createSetAgeCommand(): CommandAPICommand =
         CommandAPICommand("set")
             .withPermission("lifecycle.age.set")
             .withArguments(PlayerArgument("player"), IntegerArgument("ageValue"))
@@ -23,7 +23,7 @@ class AgeCommands(private val agingManager: AgingManager) {
                 executeAgeChange(sender, targetPlayer, targetAgeValue) { _, newAge -> newAge }
             })
 
-    fun createSubtractAgeCommand() =
+    fun createSubtractAgeCommand(): CommandAPICommand =
         CommandAPICommand("subtract")
             .withPermission("lifecycle.age.subtract")
             .withArguments(PlayerArgument("player"), IntegerArgument("ageValue"))
@@ -33,7 +33,7 @@ class AgeCommands(private val agingManager: AgingManager) {
                 executeAgeChange(sender, targetPlayer, subtractValue) { currentAge, value -> currentAge - value }
             })
 
-    fun createAddAgeCommand() =
+    fun createAddAgeCommand(): CommandAPICommand =
         CommandAPICommand("add")
             .withPermission("lifecycle.age.add")
             .withArguments(PlayerArgument("player"), IntegerArgument("ageValue"))

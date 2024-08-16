@@ -2,3 +2,10 @@ name: LifeCycle
 version: '${version}'
 main: com.github.s0lux.lifecycle.LifeCycle
 api-version: '1.21'
+permissions :
+  lifecycle.check.self:
+    description: "Check sender's life information"
+    default: true
+  lifecycle.trait.list:
+    description: "List all available traits"
+    default: true

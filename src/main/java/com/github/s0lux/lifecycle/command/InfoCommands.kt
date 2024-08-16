@@ -14,13 +14,15 @@ import org.bukkit.entity.Player
 
 class InfoCommands(val agingManager: AgingManager) {
 
-    fun createCheckLifeSelfCommand() =
-        CommandAPICommand("check").executesPlayer(PlayerCommandExecutor { player, _ ->
+    fun createCheckLifeSelfCommand(): CommandAPICommand =
+        CommandAPICommand("check")
+            .withPermission("lifecycle.check.self")
+            .executesPlayer(PlayerCommandExecutor { player, _ ->
             val lifeCyclePlayer = agingManager.findLifeCyclePlayer(player.uniqueId.toString())
             player.sendMessage(createLifeInfoComponent(lifeCyclePlayer))
         })
 
-    fun createCheckLifeOtherCommand() =
+    fun createCheckLifeOtherCommand(): CommandAPICommand =
         CommandAPICommand("check")
             .withArguments(PlayerArgument("player").withPermission("lifecycle.check.others"))
             .executesPlayer(PlayerCommandExecutor { player, args ->
