@@ -17,7 +17,8 @@ class NotificationManager() : KoinComponent {
         val message: Component = Component.text("You have obtained the trait: ")
             .append(
                 Component.text(trait.name, trait.rarity.color)
-                    .decoration(TextDecoration.UNDERLINED, true))
+                    .decoration(TextDecoration.UNDERLINED, true)
+            )
             .hoverEvent(HoverEvent.showText(trait.description))
 
         bukkitPlayer.sendMessage(message)
@@ -34,14 +35,17 @@ class NotificationManager() : KoinComponent {
 
     fun notifyAge(player: LifeCyclePlayer, agingInfo: AgeStageResult) {
         val bukkitPlayer = player.bukkitPlayer
-        var message: Component
 
-        if (agingInfo.isNewStage) {
-            message =
-                Component.text("You are now at the stage: ${agingInfo.stage.name}")
-        }
-        else message =
-            Component.text("You are now ${player.currentAge} years old.")
+        val message: Component = if (player.currentAge == player.lifespan) {
+            Component.text(
+                "You have reached the end of your lifespan, you will not survive next year.",
+                NamedTextColor.GOLD
+            )
+        } else if (player.currentAge > player.lifespan) {
+            Component.text("Your time has come...", NamedTextColor.DARK_RED)
+        } else if (agingInfo.isNewStage) {
+            Component.text("You are now at the stage: ${agingInfo.stage.name}")
+        } else Component.text("You are now ${player.currentAge} years old.")
 
         val notificationSound: Sound =
             Sound.sound(Key.key("entity.player.levelup"), Sound.Source.MASTER, 1f, 1f)
